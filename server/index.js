@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const PORT = process.env.PORT || 5000;
 const authRouter = require('./router/authRouter');
 const productRouter = require('./router/productRouter');
-const cartRouter = require('./router/cartRouter');
 const orderRouter = require('./router/orderRouter');
 const basketRouter = require('./router/basketRouter');
 const cors = require('cors');
@@ -13,9 +12,8 @@ const app = express();
 app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/product', productRouter);
-app.use('/', cartRouter);
-app.use('/', orderRouter);
 app.use('/', basketRouter);
+app.use('/', orderRouter);
 app.use(cors());
 
 const start = async () => {
