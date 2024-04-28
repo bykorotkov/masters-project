@@ -1,12 +1,17 @@
 const BasketItem = require('../models/BasketItem');
+const Basket = require('../models/Basket');
+const Token = require('../models/Token');
+const Product = require('../models/Product');
 
 class basketItemsController {
 	async addToBasket(req, res) {
 		try {
-			const { productId, quantity, basketId } = req.body;
-			const existingProduct = await BasketItem.findOne({ productId });
-			if (existingProduct) {
-				return res.status(400).json({ message: 'Товар уже находится в корзине' });
+			const { productId, quantity, token } = req.body;
+
+			const tokenData = await Token.findOne({ token });
+
+			if (!tokenData) {
+				return res.status(400).json({ message: 'Пользователь не найден' });
 			}
 
 			if (!productId) {
@@ -17,11 +22,23 @@ class basketItemsController {
 				return res.status(400).json({ message: 'Товара нет в наличии' });
 			}
 
-			if (!basketId) {
-				return res.status(400).json({ message: '' });
+			// const productData = await Product.findOne({ _id: productId });
+			const price = 500;
+
+			let basket = await Basket.findOne({ orderId: null });
+			console.log(basket);
+			if (!basket) {
+				basket = new Basket({ userId: tokenData.userId });
+				await basket.save();
 			}
 
-			const newProduct = new BasketItem({ productId, quantity, userId });
+			const existingProduct = await BasketItem.findOne({ productId, basketId: basket._id });
+
+			if (existingProduct) {
+				return res.status(400).json({ message: 'Товар уже находится в корзине' });
+			}
+
+			const newProduct = new BasketItem({ productId, quantity, basketId: basket._id, price });
 			await newProduct.save();
 			res.status(200).json({ message: 'Товар успешно добавлен в корзину' });
 		} catch (e) {
@@ -32,22 +49,27 @@ class basketItemsController {
 
 	async deleteFromBasket(req, res) {
 		try {
-			const { productId, userId } = req.body;
-			const deletedProduct = await BasketItem.findOne({ productId });
+			const { productId, basketId } = req.body;
+			const existingProduct = await BasketItem.findOne({ productId, basketId });
 
-			if (!deletedProduct) {
+			if (!existingProduct) {
 				return res.status(400).json({ message: 'Товара нет в корзине' });
 			}
 
-			if (!userId) {
-				return res.status(400).json({ message: 'К товару должен быть прикреплен юзер' });
+			const basket = await Basket.findById(basketId);
+			if (!basket) {
+				return res.status(400).json({ message: 'Корзина не найдена' });
 			}
 
-			if (userId !== deletedProduct.userId) {
-				return res.status(400).json({ message: 'Нет прав удалять товар у другого пользователя' });
-			}
+			// if (!userId) {
+			// 	return res.status(400).json({ message: 'К товару должен быть прикреплен юзер' });
+			// }
 
-			await BasketItem.findOneAndDelete({ productId });
+			// if (userId !== deletedProduct.userId) {
+			// 	return res.status(400).json({ message: 'Нет прав удалять товар у другого пользователя' });
+			// }
+
+			await BasketItem.findOneAndDelete({ productId, basketId: basket._id });
 			res.status(200).json({ message: 'Товар успешно удален из корзины' });
 		} catch (e) {
 			console.log(e);
@@ -57,23 +79,28 @@ class basketItemsController {
 
 	async updateBasket(req, res) {
 		try {
-			const { productId, quantity, userId } = req.body;
+			const { productId, quantity, basketId } = req.body;
 
-			const updatedProduct = await BasketItem.findOne({ productId });
+			const updatedProduct = await BasketItem.findOne({ productId, basketId });
 
 			if (!updatedProduct) {
 				return res.status(400).json({ message: 'Товар не найден в корзине' });
 			}
 
-			if (!userId) {
-				return res.status(400).json({ message: 'К товару должен быть прикреплен юзер' });
+			const basket = await Basket.findById(basketId);
+			if (!basket) {
+				return res.status(400).json({ message: 'Корзина не найдена' });
 			}
 
-			if (userId !== updatedProduct.userId) {
-				return res.status(400).json({ message: 'Нет прав обновлять товар у другого пользователя' });
-			}
+			// if (!userId) {
+			// 	return res.status(400).json({ message: 'К товару должен быть прикреплен юзер' });
+			// }
 
-			await BasketItem.findOneAndUpdate({ productId }, { quantity });
+			// if (userId !== updatedProduct.userId) {
+			// 	return res.status(400).json({ message: 'Нет прав обновлять товар у другого пользователя' });
+			// }
+
+			await BasketItem.findOneAndUpdate({ productId, basketId: basket._id }, { quantity });
 			res.status(200).json({ message: 'Количество товара успешно обновлено в корзине' });
 		} catch (e) {
 			console.log(e);
@@ -83,7 +110,13 @@ class basketItemsController {
 
 	async getBasket(req, res) {
 		try {
-			const basketItem = await BasketItem.find();
+			const { basketId } = req.body;
+			const basket = await Basket.findById(basketId);
+			if (!basket) {
+				return res.status(400).json({ message: 'Корзина не найдена' });
+			}
+
+			const basketItem = await BasketItem.find({ basketId: basket._id });
 			res.json(basketItem);
 		} catch (e) {
 			console.log(e);

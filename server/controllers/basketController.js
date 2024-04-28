@@ -1,15 +1,21 @@
 const Basket = require('../models/Basket');
+const BasketItem = require('../models/BasketItem');
 
 const createBasket = async (req, res) => {
 	try {
-		const { userId, cartItems } = req.body;
-		if (!cartItems) {
-			return res.status(404).json({ message: 'Корзина пуста' });
+		const { userId, orderId } = req.body;
+		const basket = await Basket.findOne({ userId, orderId });
+
+		console.log('basket', basket);
+		if (basket && basket.orderId) {
+			return res.status(404).json({ message: 'Корзина уже используется с оформленным ранее заказом' });
 		}
 		if (!userId) {
 			return res.status(404).json({ message: 'Пользователь не найден' });
 		}
-		const newBasket = await Basket.create({ userId, cartItems });
+
+		const newBasket = await Basket.create({ userId, orderId });
+
 		res.status(201).json(newBasket);
 	} catch (e) {
 		res.status(400).json({ message: error.message });
@@ -18,7 +24,7 @@ const createBasket = async (req, res) => {
 
 const updateBasket = async (req, res) => {
 	try {
-		const { userId, cartItems } = req.body;
+		const { userId, orderId } = req.body;
 	} catch (e) {
 		res.status(400).json({ message: error.message });
 	}

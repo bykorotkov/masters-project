@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const { secret } = require('../config');
+const Token = require('../models/Token');
 
 const generateAccessToken = (id, roles) => {
 	const payload = {
@@ -47,7 +48,11 @@ class authController {
 			if (!validPassword) {
 				return res.status(400).json({ message: `Введите верный пароль` });
 			}
+
 			const token = generateAccessToken(user._id, user.roles);
+			console.log(token);
+			const saveToken = new Token({ userId: user._id, token });
+			await saveToken.save();
 			return res.json({ token });
 		} catch (e) {
 			console.log(e);
