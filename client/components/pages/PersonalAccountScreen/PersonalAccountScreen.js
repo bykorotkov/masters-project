@@ -8,7 +8,7 @@ import CustomButton from '../../ui/CustomButton/CustomButton';
 import { mockData } from './mockData';
 
 const PersonalAccountScreen = () => {
-	const { store } = useContext(Context);
+	const { authStore } = useContext(Context);
 	const navigation = useNavigation();
 	const [products, setProducts] = useState([]);
 
@@ -37,9 +37,16 @@ const PersonalAccountScreen = () => {
 			<Text style={styles.cardTitle}>Выберите категорию товаров, которая вас интересует!</Text>
 			<CustomButton
 				title='Выйти'
-				onPress={() => store.logout(navigation)}
+				onPress={() => authStore.logout(navigation)}
 				style={styles.button}
 				width='100%'
+			/>
+
+			<CustomButton
+				title='Корзина'
+				style={styles.basketButton}
+				width={'100%'}
+				onPress={() => navigation.navigate('BasketScreen')}
 			/>
 
 			<ScrollView contentContainerStyle={styles.cardsContainer}>
@@ -95,6 +102,9 @@ const styles = StyleSheet.create({
 		top: 15,
 		right: 20,
 		width: 100
+	},
+	basketButton: {
+		marginVertical: 20
 	}
 });
 

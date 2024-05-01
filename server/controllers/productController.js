@@ -1,10 +1,10 @@
-const ProductItem = require('../models/Product');
+const Product = require('../models/Product');
 
 class productController {
-	async getProductItems(req, res) {
+	async getProducts(req, res) {
 		try {
-			const productItems = await ProductItem.find();
-			res.json(productItems);
+			const products = await Product.find();
+			res.json(products);
 		} catch (e) {
 			console.log(e);
 		}

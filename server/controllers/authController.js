@@ -19,7 +19,8 @@ class authController {
 		try {
 			const errors = validationResult(req);
 			if (!errors.isEmpty()) {
-				return res.status(400).json({ message: 'Ошибка при регистрации', errors });
+				// return res.status(400).json({ message: 'Поля не могут быть пустыми', errors });
+				return res.status(400).json({ message: errors.errors.map(err => err.msg), errors });
 			}
 			const { username, password } = req.body;
 			const candidate = await User.findOne({ username });
@@ -34,7 +35,7 @@ class authController {
 			return res.json({ message: 'Пользователь успешно зарегистрирован' });
 		} catch (e) {
 			console.log(e);
-			res.status(400).json({ message: 'Registration error' });
+			res.status(400).json({ message: 'Ошибка регистрации' });
 		}
 	}
 	async login(req, res) {
@@ -50,13 +51,13 @@ class authController {
 			}
 
 			const token = generateAccessToken(user._id, user.roles);
-			console.log(token);
+
 			const saveToken = new Token({ userId: user._id, token });
 			await saveToken.save();
 			return res.json({ token });
 		} catch (e) {
 			console.log(e);
-			res.status(400).json({ message: 'Login error' });
+			res.status(400).json({ message: 'Ошибка логинизации' });
 		}
 	}
 	async logout(req, res) {
@@ -64,7 +65,7 @@ class authController {
 			return res.json({ message: 'Пользователь успешно вышел из системы' });
 		} catch {
 			console.log(e);
-			res.status(400).json({ message: 'Logout error' });
+			res.status(400).json({ message: 'Ошибка выхода из личного кабинета' });
 		}
 	}
 	async getUsers(req, res) {

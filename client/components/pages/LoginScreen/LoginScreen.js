@@ -8,7 +8,7 @@ import CustomButton from '../../ui/CustomButton/CustomButton';
 const LoginScreen = ({}) => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
-	const { store } = useContext(Context);
+	const { authStore } = useContext(Context);
 	const navigation = useNavigation();
 
 	return (
@@ -32,13 +32,13 @@ const LoginScreen = ({}) => {
 				/>
 				<CustomButton
 					title='Войти'
-					onPress={() => store.login(username, password, navigation)}
+					onPress={() => authStore.login(username, password, navigation)}
 					style={styles.button}
 					width='100%'
 				/>
 				<CustomButton
 					title='Зарегистрироваться'
-					onPress={() => store.registration(username, password)}
+					onPress={() => authStore.registration(username, password)}
 					style={styles.button}
 					width='100%'
 				/>

@@ -1,19 +1,23 @@
 import { NavigationContainer } from '@react-navigation/native';
 import React, { createContext } from 'react';
 import AppNavigator from './Navigation/AppNavigator';
-import Store from './store/store';
+import AuthStore from './store/AuthStore';
+import BasketStore from './store/BasketStore';
 
-const store = new Store();
+const authStore = new AuthStore();
+const basketStore = new BasketStore();
 
 export const Context = createContext({
-	store
+	authStore,
+	basketStore
 });
 
 const App = () => {
 	return (
 		<Context.Provider
 			value={{
-				store
+				authStore,
+				basketStore
 			}}>
 			<NavigationContainer>
 				<AppNavigator />

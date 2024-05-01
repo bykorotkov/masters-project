@@ -1,11 +1,24 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute } from '@react-navigation/native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Context } from '../../../App';
 import productImage from '../../../assets/productImage.jpg';
 
 const ProductListScreen = () => {
 	const route = useRoute();
 	const { filteredProducts, productType } = route.params;
+	const { basketStore } = useContext(Context);
+
+	const addToBasketWithToken = async productId => {
+		try {
+			const token = await AsyncStorage.getItem('token');
+			console.log('token from product list', token);
+			basketStore.addToBasket(productId, 1, token);
+		} catch (error) {
+			console.error('Произошла ошибка при получении токена из AsyncStorage:', error);
+		}
+	};
 
 	return (
 		<ScrollView
@@ -26,7 +39,7 @@ const ProductListScreen = () => {
 
 						<View style={styles.Description}>
 							<Text style={styles.Name}>Название: {product.Name}</Text>
-							<Text style={styles.Rate}>Рейтинг {product.Rate}</Text>
+							<Text style={styles.Rate}>Рейтинг: {product.Rate}</Text>
 							<View style={styles.Row}>
 								<Text style={styles.Volume}>Объем: {product.Volume}</Text>
 								<Text style={styles.Price}>Цена: {product.Price}</Text>
@@ -35,7 +48,7 @@ const ProductListScreen = () => {
 							<TouchableOpacity
 								style={styles.Button}
 								title='Добавить в корзину'
-								onPress={() => console.log('Добавлено в корзину')}>
+								onPress={() => addToBasketWithToken(product._id)}>
 								<Text style={styles.TextButton}>Добавить в корзину</Text>
 							</TouchableOpacity>
 						</View>

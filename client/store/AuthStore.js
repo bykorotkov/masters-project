@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { makeAutoObservable } from 'mobx';
 import AuthService from '../services/AuthService';
 
-export default class Store {
+export default class AuthStore {
 	user = {};
 	isAuth = false;
 
