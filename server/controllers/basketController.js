@@ -47,13 +47,8 @@ class basketController {
 
 	async deleteFromBasket(req, res) {
 		try {
-			// const { productId, token } = req.body; Старый вариант
-
-			// Не работающий, новый вариант
 			const token = req.headers.authorization.replace('Bearer ', '');
-			const { productId } = req.query;
-
-			console.log(token, productId);
+			const { productId } = req.body;
 
 			const tokenData = await Token.findOne({ token });
 

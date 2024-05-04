@@ -6,13 +6,16 @@ export default class BasketService {
 	}
 
 	static async deleteFromBasket(productId, token) {
-		// return $base.delete('/', { productId, token }); Старый вариант
+		return $base.delete(
+			'/',
 
-		return $base.delete(`/${productId}`, {
-			headers: {
-				Authorization: `Bearer ${token}`
+			{
+				data: { productId },
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
 			}
-		});
+		);
 	}
 
 	static async updateBasket(productId, quantity, token) {

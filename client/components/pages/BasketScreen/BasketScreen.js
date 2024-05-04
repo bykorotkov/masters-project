@@ -4,6 +4,7 @@ import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 're
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Context } from '../../../App';
 import closeIcon from '../../../assets/closeIcon.png';
+import Counter from './Counter/Counter';
 
 const BasketScreen = () => {
 	const { basketStore } = useContext(Context);
@@ -50,6 +51,11 @@ const BasketScreen = () => {
 								<Text>Quantity: {product.quantity}</Text>
 								<Text>Price: {product.price}</Text>
 								<Text>Basket ID: {product.basketId}</Text>
+
+								<Counter
+									productId={product.productId}
+									quantityItems={product.quantity}
+								/>
 							</View>
 
 							<TouchableOpacity
@@ -117,7 +123,8 @@ const styles = StyleSheet.create({
 		flexDirection: 'column-reverse',
 		justifyContent: 'center',
 		alignItems: 'center',
-		height: 90
+		height: 'auto',
+		marginTop: 15
 	},
 	TextDelete: {
 		width: 60,

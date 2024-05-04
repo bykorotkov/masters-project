@@ -13,7 +13,6 @@ const ProductListScreen = () => {
 	const addToBasketWithToken = async productId => {
 		try {
 			const token = await AsyncStorage.getItem('token');
-			console.log('token from product list', token);
 			basketStore.addToBasket(productId, 1, token);
 		} catch (error) {
 			console.error('Произошла ошибка при получении токена из AsyncStorage:', error);
