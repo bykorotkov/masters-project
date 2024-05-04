@@ -43,8 +43,6 @@ export default class BasketStore {
 						product.quantity = quantity;
 					}
 				});
-
-				console.log('Данные обновлены');
 			} else {
 				console.error('Ошибка при обновлении корзины');
 			}
@@ -55,17 +53,15 @@ export default class BasketStore {
 
 	async getBasket(token) {
 		try {
-			console.log('token from store', token);
 			const response = await BasketService.getBasket(token);
 			if (response.status === 200) {
 				const basketData = response.data;
 				this.products = basketData;
-				console.log('Данные корзины:', basketData);
 			} else {
 				console.error('Ошибка при получении корзины');
 			}
 		} catch (error) {
-			console.error('Произошла ошибка при получении корзины');
+			console.error('Произошла ошибка при получении корзины', error.message);
 		}
 	}
 }
