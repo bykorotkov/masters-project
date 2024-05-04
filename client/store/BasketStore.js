@@ -8,15 +8,15 @@ export default class BasketStore {
 		makeAutoObservable(this);
 	}
 
+	setProduct(productItems) {
+		this.products = productItems;
+	}
+
 	async addToBasket(productId, quantity, token) {
 		try {
 			const response = await BasketService.addToBasket(productId, quantity, token);
-			if (response.status === 200) {
-				this.products.push({ productId, quantity });
-				console.log('Данные добавлены');
-			} else {
-				console.error('Ошибка при добавлении товара в корзину');
-			}
+
+			this.setProduct(response.data.products);
 		} catch (error) {
 			console.error('Произошла ошибка при добавлении товара в корзину:', error);
 		}
@@ -25,10 +25,8 @@ export default class BasketStore {
 	async deleteFromBasket(productId, token) {
 		try {
 			const response = await BasketService.deleteFromBasket(productId, token);
-			if (response.status === 200) {
-				this.products = this.products.filter(product => product.productId !== productId);
-				console.log('Данные удалены');
-			}
+
+			this.setProduct(response.data.products);
 		} catch (error) {
 			console.error('Произошла ошибка при удалении данных', error);
 		}
@@ -37,15 +35,8 @@ export default class BasketStore {
 	async updateBasket(productId, quantity, token) {
 		try {
 			const response = await BasketService.updateBasket(productId, quantity, token);
-			if (response.status === 200) {
-				this.products.forEach(product => {
-					if (product.productId === productId) {
-						product.quantity = quantity;
-					}
-				});
-			} else {
-				console.error('Ошибка при обновлении корзины');
-			}
+
+			this.setProduct(response.data.products);
 		} catch (error) {
 			console.error('Произошла ошибка при обновлении данных', error);
 		}
@@ -54,14 +45,21 @@ export default class BasketStore {
 	async getBasket(token) {
 		try {
 			const response = await BasketService.getBasket(token);
-			if (response.status === 200) {
-				const basketData = response.data;
-				this.products = basketData;
-			} else {
-				console.error('Ошибка при получении корзины');
+			this.setProduct(response.data);
+
+			if (!response.data) {
+				console.log('Козина пустая');
 			}
 		} catch (error) {
 			console.error('Произошла ошибка при получении корзины', error.message);
+		}
+	}
+
+	async isProductInBasket(productId) {
+		try {
+			return this.products.some(item => item.productId === productId);
+		} catch (error) {
+			console.error('Не удалось проверить товар в корзине', error.message);
 		}
 	}
 }

@@ -38,7 +38,9 @@ class basketController {
 
 			const newProduct = new BasketItem({ productId, quantity, basketId: basket._id, price });
 			await newProduct.save();
-			res.status(200).json({ message: 'Товар успешно добавлен в корзину' });
+
+			const basketItem = await BasketItem.find({ basketId: basket._id });
+			res.status(200).json({ products: basketItem, message: 'Товар успешно добавлен в корзину' });
 		} catch (e) {
 			console.log(e);
 			res.status(400).json({ message: 'Ошибка при добавлении товара в корзину' });
@@ -73,14 +75,16 @@ class basketController {
 
 			await BasketItem.findOneAndDelete({ productId, basketId: basket._id });
 
-			const productsInBasket = await BasketItem.find({ basketId: basket._id });
-			if (productsInBasket.length === 0) {
-				// Удаляем корзину, если в ней больше нет товаров
-				await Basket.findByIdAndDelete(basket._id);
-				return res.status(200).json({ message: 'Товар успешно удален из корзины. Корзина пуста и была удалена.' });
-			}
+			// const productsInBasket = await BasketItem.find({ basketId: basket._id });
+			// if (productsInBasket.length === 0) {
+			// 	// Удаляем корзину, если в ней больше нет товаров
+			// 	await Basket.findByIdAndDelete(basket._id);
+			// 	return res.status(200).json({ message: 'Товар успешно удален из корзины. Корзина пуста и была удалена.' });
+			// }
 
-			res.status(200).json({ message: 'Товар успешно удален из корзины' });
+			const basketItem = await BasketItem.find({ basketId: basket._id });
+
+			res.status(200).json({ products: basketItem, message: 'Товар успешно удален из корзины' });
 		} catch (e) {
 			console.log(e);
 			res.status(400).json({ message: 'Ошибка при удалении товара из корзины' });
@@ -109,7 +113,8 @@ class basketController {
 			}
 
 			await BasketItem.findOneAndUpdate({ productId, basketId: basket._id }, { quantity });
-			res.status(200).json({ message: 'Количество товара успешно обновлено в корзине' });
+			const basketItem = await BasketItem.find({ basketId: basket._id });
+			res.status(200).json({ products: basketItem, message: 'Количество товара успешно обновлено в корзине' });
 		} catch (e) {
 			console.log(e);
 			res.status(400).json({ message: 'Ошибка при обновлении количества товара в корзине' });
@@ -133,6 +138,10 @@ class basketController {
 
 			const basketItem = await BasketItem.find({ basketId: basket._id });
 			res.json(basketItem);
+
+			if (!basketItem) {
+				return res.status(400).json({ message: 'Корзина пустая' });
+			}
 		} catch (e) {
 			console.log(e);
 			res.status(400).json({ message: 'Ошибка получения данных о корзине' });

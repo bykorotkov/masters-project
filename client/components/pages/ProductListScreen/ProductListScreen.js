@@ -1,19 +1,35 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute } from '@react-navigation/native';
-import React, { useContext } from 'react';
+import { observer } from 'mobx-react-lite';
+import React, { useContext, useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Context } from '../../../App';
 import productImage from '../../../assets/productImage.jpg';
 
-const ProductListScreen = () => {
+const ProductListScreen = observer(() => {
 	const route = useRoute();
 	const { filteredProducts, productType } = route.params;
 	const { basketStore } = useContext(Context);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		const getItems = async () => {
+			const token = await AsyncStorage.getItem('token');
+			await basketStore.getBasket(token);
+			setIsLoading(false);
+		};
+
+		getItems();
+	}, [basketStore]);
 
 	const addToBasketWithToken = async productId => {
 		try {
 			const token = await AsyncStorage.getItem('token');
-			basketStore.addToBasket(productId, 1, token);
+			if (!(await basketStore.isProductInBasket(productId))) {
+				await basketStore.addToBasket(productId, 1, token);
+			} else {
+				console.log('Товар уже добавлен в корзину');
+			}
 		} catch (error) {
 			console.error('Произошла ошибка при получении токена из AsyncStorage:', error);
 		}
@@ -25,38 +41,51 @@ const ProductListScreen = () => {
 			style={styles.Container}>
 			<Text style={styles.Heading}>{productType}</Text>
 			<View style={styles.List}>
-				{filteredProducts.map(product => (
-					<View
-						key={product._id}
-						style={styles.Card}>
-						<View>
-							<Image
-								source={productImage}
-								style={styles.Image}
-							/>
-						</View>
+				{filteredProducts.map(product => {
+					const isProductInBasket = basketStore.isProductInBasket(product._id);
 
-						<View style={styles.Description}>
-							<Text style={styles.Name}>Название: {product.Name}</Text>
-							<Text style={styles.Rate}>Рейтинг: {product.Rate}</Text>
-							<View style={styles.Row}>
-								<Text style={styles.Volume}>Объем: {product.Volume}</Text>
-								<Text style={styles.Price}>Цена: {product.Price}</Text>
+					return (
+						<View
+							key={product._id}
+							style={styles.Card}>
+							<View>
+								<Image
+									source={productImage}
+									style={styles.Image}
+								/>
 							</View>
-							<Text style={styles.Brief}>Описание: {product.Brief}</Text>
-							<TouchableOpacity
-								style={styles.Button}
-								title='Добавить в корзину'
-								onPress={() => addToBasketWithToken(product._id)}>
-								<Text style={styles.TextButton}>Добавить в корзину</Text>
-							</TouchableOpacity>
+
+							<View style={styles.Description}>
+								<Text style={styles.Name}>Название: {product.Name}</Text>
+								<Text style={styles.Rate}>Рейтинг: {product.Rate}</Text>
+								<View style={styles.Row}>
+									<Text style={styles.Volume}>Объем: {product.Volume}</Text>
+									<Text style={styles.Price}>Цена: {product.Price}</Text>
+								</View>
+								<Text style={styles.Brief}>Описание: {product.Brief}</Text>
+								{isProductInBasket._j ? (
+									<TouchableOpacity
+										style={styles.ButtonActive}
+										title='Добавить в корзину'
+										onPress={() => addToBasketWithToken(product._id)}>
+										<Text style={styles.TextButton}>Товар добавлен</Text>
+									</TouchableOpacity>
+								) : (
+									<TouchableOpacity
+										style={styles.Button}
+										title='Добавить в корзину'
+										onPress={() => addToBasketWithToken(product._id)}>
+										<Text style={styles.TextButton}>Добавить в корзину</Text>
+									</TouchableOpacity>
+								)}
+							</View>
 						</View>
-					</View>
-				))}
+					);
+				})}
 			</View>
 		</ScrollView>
 	);
-};
+});
 
 ProductListScreen.name = 'ProductListScreen';
 
@@ -128,6 +157,11 @@ const styles = StyleSheet.create({
 	Button: {
 		marginTop: 20,
 		backgroundColor: '#1976D2',
+		borderRadius: 10
+	},
+	ButtonActive: {
+		marginTop: 20,
+		backgroundColor: '#ccc',
 		borderRadius: 10
 	},
 	TextButton: {

@@ -1,4 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -6,18 +8,19 @@ import { Context } from '../../../App';
 import closeIcon from '../../../assets/closeIcon.png';
 import Counter from './Counter/Counter';
 
-const BasketScreen = () => {
+const BasketScreen = observer(() => {
 	const { basketStore } = useContext(Context);
 	const [isLoading, setIsLoading] = useState(true);
+	const navigation = useNavigation();
 
 	useEffect(() => {
-		const getToken = async () => {
+		const getItems = async () => {
 			const token = await AsyncStorage.getItem('token');
 			await basketStore.getBasket(token);
 			setIsLoading(false);
 		};
 
-		getToken();
+		getItems();
 	}, [basketStore]);
 
 	const removeFromBasketWithToken = async productId => {
@@ -42,46 +45,60 @@ const BasketScreen = () => {
 				</>
 			) : (
 				<ScrollView>
-					{basketStore.products.map(product => (
-						<View
-							key={product.productId}
-							style={styles.List}>
-							<View style={styles.Left}>
-								<Text>Product ID: {product.productId}</Text>
-								<Text>Quantity: {product.quantity}</Text>
-								<Text>Price: {product.price}</Text>
-								<Text>Basket ID: {product.basketId}</Text>
+					{basketStore.products && basketStore.products.length ? (
+						basketStore.products.map(product => (
+							<View
+								key={product.productId}
+								style={styles.List}>
+								<View style={styles.Left}>
+									<Text>Product ID: {product.productId}</Text>
+									<Text>Quantity: {product.quantity}</Text>
+									<Text>Price: {product.price}</Text>
+									<Text>Basket ID: {product.basketId}</Text>
 
-								<Counter
-									productId={product.productId}
-									quantityItems={product.quantity}
-								/>
+									<Counter
+										productId={product.productId}
+										quantityItems={product.quantity}
+									/>
+								</View>
+
+								<TouchableOpacity
+									style={styles.Delete}
+									title='Удалить товар'
+									onPress={() => removeFromBasketWithToken(product.productId)}>
+									<Text style={styles.TextDelete}>Удалить товар</Text>
+									<Image
+										source={closeIcon}
+										style={styles.DeleteImage}
+									/>
+								</TouchableOpacity>
 							</View>
-
+						))
+					) : (
+						<View>
+							<Text style={styles.Caption}>Добавьте товары в корзину</Text>
 							<TouchableOpacity
-								style={styles.Delete}
-								title='Удалить товар'
-								onPress={() => removeFromBasketWithToken(product.productId)}>
-								<Text style={styles.TextDelete}>Удалить товар</Text>
-								<Image
-									source={closeIcon}
-									style={styles.DeleteImage}
-								/>
+								style={styles.Button}
+								title='Перейти к выбору товаров'
+								onPress={() => navigation.navigate('PersonalAccountScreen')}>
+								<Text style={styles.TextButton}>Перейти к выбору товаров</Text>
 							</TouchableOpacity>
 						</View>
-					))}
+					)}
 
-					<TouchableOpacity
-						style={styles.Button}
-						title='Оформить заказ'
-						onPress={() => console.log('Заказ оформлен')}>
-						<Text style={styles.TextButton}>Оформить заказ</Text>
-					</TouchableOpacity>
+					{basketStore.products && basketStore.products.length ? (
+						<TouchableOpacity
+							style={styles.Button}
+							title='Оформить заказ'
+							onPress={() => console.log('Заказ оформлен')}>
+							<Text style={styles.TextButton}>Оформить заказ</Text>
+						</TouchableOpacity>
+					) : null}
 				</ScrollView>
 			)}
 		</View>
 	);
-};
+});
 
 BasketScreen.name = 'BasketScreen';
 
@@ -116,7 +133,9 @@ const styles = StyleSheet.create({
 	},
 	Left: {
 		padding: 10,
-		borderRightWidth: 1
+		borderRightWidth: 1,
+		display: 'flex',
+		alignItems: 'center'
 	},
 	Delete: {
 		display: 'flex',
@@ -135,6 +154,11 @@ const styles = StyleSheet.create({
 		width: 20,
 		height: 20,
 		objectFit: 'contain'
+	},
+	Caption: {
+		textAlign: 'center',
+		fontSize: 16,
+		marginTop: 20
 	}
 });
 
