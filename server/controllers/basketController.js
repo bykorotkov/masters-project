@@ -137,11 +137,11 @@ class basketController {
 			}
 
 			const basketItem = await BasketItem.find({ basketId: basket._id });
-			res.json(basketItem);
 
 			if (!basketItem) {
 				return res.status(400).json({ message: 'Корзина пустая' });
 			}
+			res.json(basketItem);
 		} catch (e) {
 			console.log(e);
 			res.status(400).json({ message: 'Ошибка получения данных о корзине' });

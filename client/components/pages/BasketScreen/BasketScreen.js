@@ -17,6 +17,7 @@ const BasketScreen = observer(() => {
 		const getItems = async () => {
 			const token = await AsyncStorage.getItem('token');
 			await basketStore.getBasket(token);
+			console.log(token);
 			setIsLoading(false);
 		};
 
@@ -90,7 +91,7 @@ const BasketScreen = observer(() => {
 						<TouchableOpacity
 							style={styles.Button}
 							title='Оформить заказ'
-							onPress={() => console.log('Заказ оформлен')}>
+							onPress={() => navigation.navigate('OrderScreen')}>
 							<Text style={styles.TextButton}>Оформить заказ</Text>
 						</TouchableOpacity>
 					) : null}
