@@ -1,6 +1,7 @@
 const BasketItem = require('../models/BasketItem');
 const Basket = require('../models/Basket');
 const Token = require('../models/Token');
+const Product = require('../models/Product');
 
 class basketController {
 	async addToBasket(req, res) {
@@ -141,7 +142,21 @@ class basketController {
 			if (!basketItem) {
 				return res.status(400).json({ message: 'Корзина пустая' });
 			}
-			res.json(basketItem);
+			const productIds = basketItem.map(item => item.productId);
+			const products = await Product.find({ _id: { $in: productIds } });
+
+			const enrichedBasketItems = basketItem.map(item => {
+				const product = products.find(product => product._id.toString() === item.productId.toString());
+				return {
+					_id: item._id,
+					productId: item.productId,
+					quantity: item.quantity,
+					price: item.price,
+					basketId: item.basketId,
+					productDetails: product // Добавляем подробности о продукте
+				};
+			});
+			res.json(enrichedBasketItems);
 		} catch (e) {
 			console.log(e);
 			res.status(400).json({ message: 'Ошибка получения данных о корзине' });

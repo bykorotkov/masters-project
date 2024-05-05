@@ -17,7 +17,6 @@ const BasketScreen = observer(() => {
 		const getItems = async () => {
 			const token = await AsyncStorage.getItem('token');
 			await basketStore.getBasket(token);
-			console.log(token);
 			setIsLoading(false);
 		};
 
@@ -52,10 +51,27 @@ const BasketScreen = observer(() => {
 								key={product.productId}
 								style={styles.List}>
 								<View style={styles.Left}>
-									<Text>Product ID: {product.productId}</Text>
-									<Text>Quantity: {product.quantity}</Text>
-									<Text>Price: {product.price}</Text>
-									<Text>Basket ID: {product.basketId}</Text>
+									<Text>
+										<Text style={styles.Span}>Позиция:</Text> {product.productDetails.Name}
+									</Text>
+									<Text>
+										<Text style={styles.Span}>Количество:</Text> {product.quantity}
+									</Text>
+									<Text>
+										<Text style={styles.Span}>Цена:</Text> {product.price}
+									</Text>
+									<Text>
+										<Text style={styles.Span}>Рейтинг:</Text> {product.productDetails.Rate}
+									</Text>
+									<Text>
+										<Text style={styles.Span}>Краткое описание:</Text> {product.productDetails.Brief}
+									</Text>
+									<Text>
+										<Text style={styles.Span}>Тип:</Text> {product.productDetails.Type}
+									</Text>
+									<Text>
+										<Text style={styles.Span}>Basket ID:</Text> {product.basketId}
+									</Text>
 
 									<Counter
 										productId={product.productId}
@@ -63,16 +79,18 @@ const BasketScreen = observer(() => {
 									/>
 								</View>
 
-								<TouchableOpacity
-									style={styles.Delete}
-									title='Удалить товар'
-									onPress={() => removeFromBasketWithToken(product.productId)}>
-									<Text style={styles.TextDelete}>Удалить товар</Text>
-									<Image
-										source={closeIcon}
-										style={styles.DeleteImage}
-									/>
-								</TouchableOpacity>
+								<View style={styles.DeleteContainer}>
+									<TouchableOpacity
+										style={styles.Delete}
+										title='Удалить товар'
+										onPress={() => removeFromBasketWithToken(product.productId)}>
+										<Text style={styles.TextDelete}>Удалить товар</Text>
+										<Image
+											source={closeIcon}
+											style={styles.DeleteImage}
+										/>
+									</TouchableOpacity>
+								</View>
 							</View>
 						))
 					) : (
@@ -105,7 +123,8 @@ BasketScreen.name = 'BasketScreen';
 
 const styles = StyleSheet.create({
 	Container: {
-		padding: 10
+		padding: 10,
+		paddingBottom: 100
 	},
 	List: {
 		marginTop: 20,
@@ -135,7 +154,11 @@ const styles = StyleSheet.create({
 	Left: {
 		padding: 10,
 		borderRightWidth: 1,
+		width: '75%'
+	},
+	DeleteContainer: {
 		display: 'flex',
+		justifyContent: 'center',
 		alignItems: 'center'
 	},
 	Delete: {
@@ -144,10 +167,13 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		height: 'auto',
-		marginTop: 15
+		marginTop: 15,
+		backgroundColor: '#ccc',
+		paddingVertical: 10,
+		borderRadius: 10
 	},
 	TextDelete: {
-		width: 60,
+		width: 72,
 		textAlign: 'center',
 		marginTop: 10
 	},
@@ -160,6 +186,9 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		fontSize: 16,
 		marginTop: 20
+	},
+	Span: {
+		fontWeight: 'bold'
 	}
 });
 

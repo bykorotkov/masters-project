@@ -46,6 +46,7 @@ export default class BasketStore {
 		try {
 			const response = await BasketService.getBasket(token);
 			this.setProduct(response.data);
+			console.log(response.data.products);
 
 			if (!response.data) {
 				console.log('Козина пустая');

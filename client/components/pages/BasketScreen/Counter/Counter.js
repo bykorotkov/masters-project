@@ -61,12 +61,13 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		gap: 20,
 		marginTop: 10,
-		justifyContent: 'center',
+		justifyContent: 'space-between',
 		backgroundColor: '#fff',
-		width: 150,
+		width: '100%',
 		marginHorizontal: 'auto',
 		borderRadius: 10,
-		padding: 10
+		paddingVertical: 10,
+		paddingHorizontal: 20
 	},
 	Minus: {
 		width: 20,
