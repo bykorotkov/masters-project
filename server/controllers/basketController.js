@@ -23,7 +23,7 @@ class basketController {
 			}
 
 			// const productData = await Product.findOne({ _id: productId });
-			const price = 500;
+			// const price = 500;
 
 			let basket = await Basket.findOne({ orderId: null });
 			if (!basket) {
@@ -76,16 +76,24 @@ class basketController {
 
 			await BasketItem.findOneAndDelete({ productId, basketId: basket._id });
 
-			// const productsInBasket = await BasketItem.find({ basketId: basket._id });
-			// if (productsInBasket.length === 0) {
-			// 	// Удаляем корзину, если в ней больше нет товаров
-			// 	await Basket.findByIdAndDelete(basket._id);
-			// 	return res.status(200).json({ message: 'Товар успешно удален из корзины. Корзина пуста и была удалена.' });
-			// }
-
 			const basketItem = await BasketItem.find({ basketId: basket._id });
 
-			res.status(200).json({ products: basketItem, message: 'Товар успешно удален из корзины' });
+			const productIds = basketItem.map(item => item.productId);
+			const products = await Product.find({ _id: { $in: productIds } });
+
+			const enrichedBasketItems = basketItem.map(item => {
+				const product = products.find(product => product._id.toString() === item.productId.toString());
+				return {
+					_id: item._id,
+					productId: item.productId,
+					quantity: item.quantity,
+					price: item.price,
+					basketId: item.basketId,
+					productDetails: product // Добавляем подробности о продукте
+				};
+			});
+
+			res.status(200).json({ products: enrichedBasketItems, message: 'Товар успешно удален из корзины' });
 		} catch (e) {
 			console.log(e);
 			res.status(400).json({ message: 'Ошибка при удалении товара из корзины' });
@@ -115,7 +123,23 @@ class basketController {
 
 			await BasketItem.findOneAndUpdate({ productId, basketId: basket._id }, { quantity });
 			const basketItem = await BasketItem.find({ basketId: basket._id });
-			res.status(200).json({ products: basketItem, message: 'Количество товара успешно обновлено в корзине' });
+
+			const productIds = basketItem.map(item => item.productId);
+			const products = await Product.find({ _id: { $in: productIds } });
+
+			const enrichedBasketItems = basketItem.map(item => {
+				const product = products.find(product => product._id.toString() === item.productId.toString());
+				return {
+					_id: item._id,
+					productId: item.productId,
+					quantity: item.quantity,
+					price: item.price,
+					basketId: item.basketId,
+					productDetails: product // Добавляем подробности о продукте
+				};
+			});
+
+			res.status(200).json({ products: enrichedBasketItems, message: 'Количество товара успешно обновлено в корзине' });
 		} catch (e) {
 			console.log(e);
 			res.status(400).json({ message: 'Ошибка при обновлении количества товара в корзине' });
