@@ -22,8 +22,16 @@ class basketController {
 				return res.status(400).json({ message: 'Товара нет в наличии' });
 			}
 
-			// const productData = await Product.findOne({ _id: productId });
-			// const price = 500;
+			const product = await Product.findOne({ _id: productId });
+
+			const price = parseFloat(product.Price.replace(' рублей', ''));
+			if (isNaN(price)) {
+				return res.status(400).json({ message: 'Некорректное значение цены товара' });
+			}
+
+			if (!product) {
+				return res.status(400).json({ message: 'Товар не найден' });
+			}
 
 			let basket = await Basket.findOne({ orderId: null });
 			if (!basket) {
@@ -37,7 +45,7 @@ class basketController {
 				return res.status(400).json({ message: 'Товар уже находится в корзине' });
 			}
 
-			const newProduct = new BasketItem({ productId, quantity, basketId: basket._id, price });
+			const newProduct = new BasketItem({ productId, quantity, basketId: basket._id, price: price });
 			await newProduct.save();
 
 			const basketItem = await BasketItem.find({ basketId: basket._id });

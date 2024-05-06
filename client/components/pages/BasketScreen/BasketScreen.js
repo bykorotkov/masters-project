@@ -123,7 +123,7 @@ BasketScreen.name = 'BasketScreen';
 
 const styles = StyleSheet.create({
 	Container: {
-		padding: 10,
+		padding: 16,
 		paddingBottom: 100
 	},
 	List: {
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
 		padding: 0,
 		display: 'flex',
 		flexDirection: 'row',
-		gap: 10,
+		gap: 9,
 		borderRadius: 10
 	},
 	Button: {
