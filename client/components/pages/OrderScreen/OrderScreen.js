@@ -1,11 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import MaskInput from 'react-native-mask-input';
 import { Context } from '../../../App';
 
 const OrderScreen = () => {
-	const { basketStore } = useContext(Context);
+	const { basketStore, orderStore } = useContext(Context);
 	const [isLoading, setIsLoading] = useState(true);
+	const [formErrors, setFormErrors] = useState({});
+	const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+	const navigation = useNavigation();
 
 	useEffect(() => {
 		const getItems = async () => {
@@ -18,10 +23,9 @@ const OrderScreen = () => {
 	}, [basketStore]);
 
 	const [formData, setFormData] = useState({
-		input1: '',
-		input2: '',
-		input3: '',
-		input4: ''
+		name: '',
+		email: '',
+		phone: ''
 	});
 
 	const handleInputChange = (name, value) => {
@@ -31,75 +35,136 @@ const OrderScreen = () => {
 		});
 	};
 
+	const validateEmail = email => {
+		const re = /\S+@\S+\.\S+/;
+		return re.test(email);
+	};
+
+	const validateForm = () => {
+		const errors = {};
+
+		if (!formData.name.trim()) {
+			errors.name = 'Поле "Введите имя" обязательно для заполнения';
+		}
+
+		if (!formData.email.trim()) {
+			errors.email = 'Поле "Введите email" обязательно для заполнения';
+		} else if (!validateEmail(formData.email)) {
+			errors.email = 'Пожалуйста, введите корректный email';
+		}
+
+		if (!formData.phone.trim()) {
+			errors.phone = 'Поле "Введите телефон" обязательно для заполнения';
+		}
+
+		setFormErrors(errors);
+
+		return Object.keys(errors).length === 0;
+	};
+
+	const submitOrder = () => {
+		if (validateForm()) {
+			console.log('Форма валидна, можно отправлять данные');
+
+			addOrder();
+			setIsFormSubmitted(true);
+		} else {
+			alert('Форма невалидна, пожалуйста, заполните все поля');
+		}
+	};
+
+	const addOrder = async () => {
+		try {
+			const token = await AsyncStorage.getItem('token');
+			await orderStore.createOrderFunc(formData.name, formData.email, formData.phone, token);
+		} catch (e) {
+			console.error('Не удалось создать заказ', e.message);
+		}
+	};
+
 	return (
 		<View style={styles.Container}>
 			<Text style={styles.Heading}>Страница Заказа</Text>
 
 			<ScrollView>
-				{isLoading ? (
+				{!isFormSubmitted ? (
 					<>
-						<Text>Данные загружаются...</Text>
-						<ActivityIndicator
-							size='large'
-							color='#0000ff'
-						/>
+						<View style={styles.InputContainer}>
+							<TextInput
+								style={styles.Input}
+								placeholder='Введите имя'
+								onChangeText={text => handleInputChange('name', text)}
+								value={formData.name}
+							/>
+							{formErrors.name && <Text style={styles.ErrorText}>{formErrors.name}</Text>}
+
+							<TextInput
+								style={styles.Input}
+								placeholder='Введите email'
+								onChangeText={text => handleInputChange('email', text)}
+								value={formData.email}
+							/>
+							{formErrors.email && <Text style={styles.ErrorText}>{formErrors.email}</Text>}
+							<MaskInput
+								style={styles.Input}
+								placeholder='Введите телефон'
+								onChangeText={text => handleInputChange('phone', text)}
+								value={formData.phone}
+								mask={['+', '7', ' ', '(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/]}
+							/>
+							{formErrors.phone && <Text style={styles.ErrorText}>{formErrors.phone}</Text>}
+						</View>
+
+						{isLoading ? (
+							<>
+								<Text>Данные загружаются...</Text>
+								<ActivityIndicator
+									size='large'
+									color='#0000ff'
+								/>
+							</>
+						) : (
+							<>
+								<Text style={styles.ListHeading}>Список ваших товаров:</Text>
+								<View style={styles.ItemContainer}>
+									{basketStore.products.map((item, index) => (
+										<View
+											key={item.productId}
+											style={styles.Item}>
+											<Text>
+												<Text style={styles.Span}>Позиция {index + 1}:</Text> {item.productDetails.Name}
+											</Text>
+											<Text>
+												<Text style={styles.Span}>Количество:</Text> {item.quantity}
+											</Text>
+											<Text>
+												<Text style={styles.Span}>Цена:</Text> {item.price}
+											</Text>
+										</View>
+									))}
+								</View>
+							</>
+						)}
+
+						<TouchableOpacity
+							style={styles.Button}
+							title='Сделать заказ'
+							onPress={submitOrder}>
+							<Text style={styles.TextButton}>Сделать заказ</Text>
+						</TouchableOpacity>
 					</>
 				) : (
 					<View>
-						{basketStore.products.map((item, index) => (
-							<View
-								key={item.productId}
-								style={styles.Item}>
-								<View style={styles.Left}>
-									<Text>
-										<Text style={styles.Span}>Позиция {index + 1}:</Text> {item.productDetails.Name}
-									</Text>
-									<Text>
-										<Text style={styles.Span}>Количество:</Text> {item.quantity}
-									</Text>
-									<Text>
-										<Text style={styles.Span}>Цена:</Text> {item.price}
-									</Text>
-								</View>
-							</View>
-						))}
+						<Text style={styles.ThankText}>Спасибо за заказ! {'\n'}Продуктовый набор будет скоро доставлен!</Text>
+
+						<TouchableOpacity
+							style={styles.Button}
+							title='Вернуться на главную'
+							onPress={() => navigation.navigate('HomeScreen')}>
+							<Text style={styles.TextButton}>Вернуться на главную</Text>
+						</TouchableOpacity>
 					</View>
 				)}
-
-				<View>
-					<TextInput
-						style={styles.Input}
-						placeholder='Введите имя'
-						onChangeText={text => handleInputChange('input1', text)}
-						value={formData.input1}
-					/>
-					<TextInput
-						style={styles.Input}
-						placeholder='Введите email'
-						onChangeText={text => handleInputChange('input2', text)}
-						value={formData.input2}
-					/>
-					<TextInput
-						style={styles.Input}
-						placeholder='Введите телефон'
-						onChangeText={text => handleInputChange('input3', text)}
-						value={formData.input3}
-					/>
-
-					<TextInput
-						style={styles.Input}
-						placeholder='Введите адрес доставки'
-						onChangeText={text => handleInputChange('input4', text)}
-						value={formData.input4}
-					/>
-
-					<TouchableOpacity
-						style={styles.Button}
-						title='Сделать заказ'
-						onPress={() => console.log('Заказать')}>
-						<Text style={styles.TextButton}>Сделать заказ</Text>
-					</TouchableOpacity>
-				</View>
 			</ScrollView>
 		</View>
 	);
@@ -118,12 +183,15 @@ const styles = StyleSheet.create({
 		textTransform: 'uppercase',
 		marginVertical: 20
 	},
+	InputContainer: {
+		marginVertical: 20,
+		gap: 10
+	},
 	Input: {
 		height: 40,
 		borderColor: 'gray',
 		borderWidth: 1,
-		paddingHorizontal: 10,
-		marginBottom: 20
+		paddingHorizontal: 10
 	},
 	Button: {
 		marginTop: 20,
@@ -135,8 +203,28 @@ const styles = StyleSheet.create({
 		color: '#fff',
 		paddingVertical: 20
 	},
+	ItemContainer: {
+		borderWidth: 1,
+		padding: 10,
+		borderRadius: 10,
+		borderColor: '#00aaff',
+		gap: 10
+	},
+	ListHeading: {
+		fontSize: 20,
+		marginBottom: 10
+	},
 	Item: {
-		marginBottom: 20
+		marginBottom: 0
+	},
+	ErrorText: {
+		marginBottom: 10
+	},
+	ThankText: {
+		fontSize: 22,
+		lineHeight: 30,
+		textAlign: 'center',
+		marginVertical: 40
 	}
 });
 

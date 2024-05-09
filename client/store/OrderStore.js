@@ -12,10 +12,10 @@ export default class OrderStore {
 		this.orders = orders;
 	}
 
-	async createOrder(name, email, phone, token) {
+	async createOrderFunc(name, email, phone, token) {
 		try {
 			const response = await OrderService.createOrder(name, email, phone, token);
-
+			console.log('orderresponse', response.data);
 			this.setOrders(response.data);
 		} catch (e) {
 			console.error('Произошла ошибка при создании заказа', e);

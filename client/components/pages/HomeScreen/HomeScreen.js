@@ -1,11 +1,27 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Context } from '../../../App';
 import CustomButton from '../../ui/CustomButton/CustomButton';
 
 const HomeScreen = () => {
 	const navigation = useNavigation();
+	const { authStore } = useContext(Context);
+
+	useEffect(() => {
+		const checkAuth = async () => {
+			const token = await AsyncStorage.getItem('token');
+			if (token) {
+				authStore.setAuth(true);
+				navigation.navigate('PersonalAccountScreen');
+			}
+		};
+
+		checkAuth();
+	}, [navigation, authStore]);
+
 	const handlePress = () => {
 		navigation.navigate('LoginScreen');
 	};
