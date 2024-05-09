@@ -164,9 +164,10 @@ class basketController {
 				return res.status(400).json({ message: 'Пользователь не найден' });
 			}
 
-			const basket = await Basket.findOne({ userId: tokenData.userId });
+			let basket = await Basket.findOne({ userId: tokenData.userId });
 			if (!basket) {
-				return res.status(400).json({ message: 'Корзина не найдена' });
+				basket = new Basket({ userId: tokenData.userId });
+				await basket.save();
 			}
 
 			const basketItem = await BasketItem.find({ basketId: basket._id });

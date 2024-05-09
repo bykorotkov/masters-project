@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const Token = require('../models/Token');
 const Basket = require('../models/Basket');
+const BasketItem = require('../models/BasketItem');
 const User = require('../models/User');
 
 const createOrder = async (req, res) => {
@@ -28,7 +29,15 @@ const createOrder = async (req, res) => {
 
 		const newOrder = await Order.create({ name, email, phone, createdAt, userId });
 		await newOrder.save();
-		res.status(201).json({ message: 'Товар успешно добавлен' });
+
+		// Удаление товаров корзины после создания заказа
+		let basket = await Basket.findOne({});
+		await BasketItem.deleteMany({ basketId: basket._id });
+
+		// Удаление корзины после создания заказа
+		await Basket.findOneAndDelete({ userId: newOrder.userId });
+
+		res.status(201).json({ message: 'Заказ успешно добавлен' });
 	} catch (error) {
 		res.status(400).json({ message: error.message });
 	}
@@ -36,7 +45,7 @@ const createOrder = async (req, res) => {
 
 const getOrders = async (req, res) => {
 	try {
-		const { token } = req.body;
+		const token = req.headers.authorization.replace('Bearer ', '');
 
 		const tokenData = await Token.findOne({ token });
 
