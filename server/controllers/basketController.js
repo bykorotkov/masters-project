@@ -33,9 +33,9 @@ class basketController {
 				return res.status(400).json({ message: 'Товар не найден' });
 			}
 
-			let basket = await Basket.findOne({ orderId: null });
+			let basket = await Basket.findOne({ userId: tokenData.userId, orderId: null });
 			if (!basket) {
-				basket = new Basket({ userId: tokenData.userId });
+				basket = new Basket({ userId: tokenData.userId, orderId: tokenData._id });
 				await basket.save();
 			}
 
@@ -165,6 +165,7 @@ class basketController {
 			}
 
 			let basket = await Basket.findOne({ userId: tokenData.userId });
+
 			if (!basket) {
 				basket = new Basket({ userId: tokenData.userId });
 				await basket.save();

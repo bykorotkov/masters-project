@@ -31,7 +31,7 @@ const createOrder = async (req, res) => {
 		await newOrder.save();
 
 		// Удаление товаров корзины после создания заказа
-		let basket = await Basket.findOne({});
+		let basket = await Basket.findOne({ userId: newOrder.userId });
 		await BasketItem.deleteMany({ basketId: basket._id });
 
 		// Удаление корзины после создания заказа

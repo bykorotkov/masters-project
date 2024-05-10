@@ -160,7 +160,7 @@ const OrderScreen = () => {
 						<TouchableOpacity
 							style={styles.Button}
 							title='Вернуться на главную'
-							onPress={() => navigation.navigate('HomeScreen')}>
+							onPress={() => navigation.navigate('PersonalAccountScreen')}>
 							<Text style={styles.TextButton}>Вернуться на главную</Text>
 						</TouchableOpacity>
 					</View>
