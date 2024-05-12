@@ -4,7 +4,6 @@ import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Context } from '../../../App';
-import productImage from '../../../assets/productImage.jpg';
 
 const ProductListScreen = observer(() => {
 	const route = useRoute();
@@ -50,7 +49,7 @@ const ProductListScreen = observer(() => {
 							style={styles.Card}>
 							<View>
 								<Image
-									source={productImage}
+									source={{ uri: product.Image }}
 									style={styles.Image}
 								/>
 							</View>
@@ -114,6 +113,9 @@ const styles = StyleSheet.create({
 	},
 	Image: {
 		width: '100%',
+		height: 400,
+		backgroundColor: '#fff',
+		objectFit: 'contain',
 		borderTopLeftRadius: 10,
 		borderTopRightRadius: 10,
 		borderBottomLeftRadius: 0,

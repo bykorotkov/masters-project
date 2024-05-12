@@ -34,7 +34,7 @@ const PersonalAccountScreen = () => {
 		<View style={styles.container}>
 			<Text style={styles.title}>Личный кабинет</Text>
 			<Text style={styles.subtitle}>Добро пожаловать!</Text>
-			<Text style={styles.cardTitle}>Выберите категорию товаров, которая вас интересует!</Text>
+
 			<CustomButton
 				title='Выйти'
 				onPress={() => authStore.logout(navigation)}
@@ -42,12 +42,23 @@ const PersonalAccountScreen = () => {
 				width='100%'
 			/>
 
-			<CustomButton
-				title='Корзина'
-				style={styles.basketButton}
-				width={'100%'}
-				onPress={() => navigation.navigate('BasketScreen')}
-			/>
+			<View style={styles.WideButtons}>
+				<CustomButton
+					title='Корзина'
+					style={styles.basketButton}
+					width={'100%'}
+					onPress={() => navigation.navigate('BasketScreen')}
+				/>
+
+				<CustomButton
+					title='Посмотреть рекомендации'
+					style={styles.basketButton}
+					width={'100%'}
+					onPress={() => navigation.navigate('RecommendationScreen')}
+				/>
+			</View>
+
+			<Text style={styles.cardTitle}>Выберите категорию товаров, которая вас интересует!</Text>
 
 			<ScrollView contentContainerStyle={styles.cardsContainer}>
 				{mockData.map(item => (
@@ -81,7 +92,7 @@ const styles = StyleSheet.create({
 	subtitle: {
 		fontSize: 18,
 		color: '#666',
-		marginBottom: 50
+		marginBottom: 0
 	},
 	cardTitle: {
 		fontSize: 18,
@@ -103,8 +114,12 @@ const styles = StyleSheet.create({
 		right: 20,
 		width: 100
 	},
+	WideButtons: {
+		width: '100%',
+		marginVertical: 10
+	},
 	basketButton: {
-		marginVertical: 20
+		marginVertical: 5
 	}
 });
 

@@ -1,7 +1,7 @@
 export const mockData = [
 	{
 		id: 1,
-		title: 'Алкоголь'
+		title: 'Кондитерские изделия'
 	},
 	{
 		id: 2,
@@ -25,7 +25,7 @@ export const mockData = [
 	},
 	{
 		id: 7,
-		title: 'Хлеб и пекарня'
+		title: 'Алкоголь'
 	},
 	{
 		id: 8,
@@ -37,6 +37,6 @@ export const mockData = [
 	},
 	{
 		id: 10,
-		title: 'Кондитерские изделия'
+		title: 'Хлеб и пекарня'
 	}
 ];

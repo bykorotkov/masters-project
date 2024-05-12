@@ -5,6 +5,7 @@ import LoginScreen from '../components/pages/LoginScreen/LoginScreen';
 import OrderScreen from '../components/pages/OrderScreen/OrderScreen';
 import PersonalAccountScreen from '../components/pages/PersonalAccountScreen/PersonalAccountScreen';
 import ProductListScreen from '../components/pages/ProductListScreen/ProductListScreen';
+import RecommendationScreen from '../components/pages/RecommendationScreen/RecommendationScreen';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +35,10 @@ const AppNavigator = () => {
 			<Stack.Screen
 				name='OrderScreen'
 				component={OrderScreen}
+			/>
+			<Stack.Screen
+				name='RecommendationScreen'
+				component={RecommendationScreen}
 			/>
 		</Stack.Navigator>
 	);
