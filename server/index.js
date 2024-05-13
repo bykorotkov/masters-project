@@ -5,6 +5,7 @@ const authRouter = require('./router/authRouter');
 const productRouter = require('./router/productRouter');
 const orderRouter = require('./router/orderRouter');
 const basketRouter = require('./router/basketRouter');
+const recommendationRouter = require('./router/recommendationRouter');
 const cors = require('cors');
 
 const app = express();
@@ -14,6 +15,7 @@ app.use('/auth', authRouter);
 app.use('/product', productRouter);
 app.use('/', basketRouter);
 app.use('/', orderRouter);
+app.use('/', recommendationRouter);
 app.use(cors());
 
 const start = async () => {

@@ -18,24 +18,42 @@ const createOrder = async (req, res) => {
 			return res.status(400).json({ message: 'Не введены обязательные для заказа данные' });
 		}
 
-		const existingBasket = await Basket.findOne({ userId: tokenData.userId });
+		const existingBasket = await Basket.findOne({ userId: tokenData.userId, orderId: { $exists: false } });
 		if (!existingBasket) {
 			return res.status(400).json({ message: 'Корзина не заполнена. Нечего заказывать' });
 		}
 
-		const userId = tokenData.userId;
+		// Создание нового заказа
+		const newOrder = await Order.create({
+			name,
+			email,
+			phone,
+			userId: tokenData.userId
+		});
 
-		const createdAt = Date.now();
+		// Связывание существующей корзины с только что созданным заказом
+		existingBasket.orderId = newOrder._id;
+		await existingBasket.save();
 
-		const newOrder = await Order.create({ name, email, phone, createdAt, userId });
-		await newOrder.save();
+		// Создание новой пустой корзины для пользователя
+		const newBasket = new Basket({
+			userId: tokenData.userId
+		});
+		await newBasket.save();
+
+		// const userId = tokenData.userId;
+
+		// const createdAt = Date.now();
+
+		// const newOrder = await Order.create({ name, email, phone, createdAt, userId });
+		// await newOrder.save();
 
 		// Удаление товаров корзины после создания заказа
-		let basket = await Basket.findOne({ userId: newOrder.userId });
-		await BasketItem.deleteMany({ basketId: basket._id });
+		// let basket = await Basket.findOne({ userId: newOrder.userId });
+		// await BasketItem.deleteMany({ basketId: basket._id });
 
-		// Удаление корзины после создания заказа
-		await Basket.findOneAndDelete({ userId: newOrder.userId });
+		// // Удаление корзины после создания заказа
+		// await Basket.findOneAndDelete({ userId: newOrder.userId });
 
 		res.status(201).json({ message: 'Заказ успешно добавлен' });
 	} catch (error) {

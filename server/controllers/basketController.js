@@ -18,7 +18,7 @@ class basketController {
 				return res.status(400).json({ message: 'Такого товара не существует' });
 			}
 
-			if (!quantity && quantity <= 0) {
+			if (!quantity || quantity <= 0) {
 				return res.status(400).json({ message: 'Товара нет в наличии' });
 			}
 
@@ -71,7 +71,7 @@ class basketController {
 				return res.status(400).json({ message: 'Такого товара не существует' });
 			}
 
-			const basket = await Basket.findOne({ userId: tokenData.userId });
+			const basket = await Basket.findOne({ userId: tokenData.userId, orderId: null });
 			if (!basket) {
 				return res.status(400).json({ message: 'Корзина не найдена' });
 			}
@@ -118,7 +118,7 @@ class basketController {
 				return res.status(400).json({ message: 'Пользователь не найден' });
 			}
 
-			const basket = await Basket.findOne({ userId: tokenData.userId });
+			const basket = await Basket.findOne({ userId: tokenData.userId, orderId: null });
 			if (!basket) {
 				return res.status(400).json({ message: 'Корзина не найдена' });
 			}
@@ -164,7 +164,7 @@ class basketController {
 				return res.status(400).json({ message: 'Пользователь не найден' });
 			}
 
-			let basket = await Basket.findOne({ userId: tokenData.userId });
+			let basket = await Basket.findOne({ userId: tokenData.userId, orderId: null });
 
 			if (!basket) {
 				basket = new Basket({ userId: tokenData.userId });
