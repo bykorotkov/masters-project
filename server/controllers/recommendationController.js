@@ -8,19 +8,26 @@ class recommendationController {
 		try {
 			const { userId } = req.params;
 
-			const baskets = await Basket.find({ userId }).populate('orderId').populate('items.productId');
+			const baskets = await Basket.find({ userId });
+			const basketIds = baskets.map(basket => basket._id);
+
+			const basketItems = await BasketItem.find({ basketId: { $in: basketIds } });
+
+			console.log(baskets);
 
 			const productCountMap = {};
-			baskets.forEach(basket => {
-				basket.items.forEach(item => {
-					const productId = item.productId._id.toString();
-					if (productCountMap[productId]) {
-						productCountMap[productId] += item.quantity;
-					} else {
-						productCountMap[productId] = item.quantity;
-					}
-				});
+			basketItems.forEach(item => {
+				const productId = item.productId.toString();
+				const quantity = item.quantity;
+
+				if (productCountMap[productId]) {
+					productCountMap[productId] += quantity;
+				} else {
+					productCountMap[productId] = quantity;
+				}
 			});
+
+			console.log('productCountMap', productCountMap);
 
 			const popularProducts = Object.keys(productCountMap)
 				.sort((a, b) => productCountMap[b] - productCountMap[a])
@@ -31,9 +38,9 @@ class recommendationController {
 				recommendedProducts: popularProducts.map(productId => ({ productId }))
 			});
 
-			await recommendations.save();
+			// await recommendations.save();
 
-			res.json(recommendations);
+			// res.json(recommendations);
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: 'Ошибка при получении рекомендаций' });
