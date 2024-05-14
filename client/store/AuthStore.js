@@ -27,6 +27,8 @@ export default class AuthStore {
 			} else {
 				const response = await AuthService.login(username, password);
 				AsyncStorage.setItem('token', response.data.token);
+				AsyncStorage.setItem('userId', response.data.userId);
+				AsyncStorage.setItem('username', response.data.username);
 				this.setAuth(true);
 				this.setUser(response.data.user);
 				navigation.navigate('PersonalAccountScreen');

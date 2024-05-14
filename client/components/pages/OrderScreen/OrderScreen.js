@@ -91,7 +91,7 @@ const OrderScreen = () => {
 					<>
 						<View style={styles.InputContainer}>
 							<TextInput
-								style={styles.Input}
+								style={[styles.Input, formErrors.name ? styles.ErrorInput : null]}
 								placeholder='Введите имя'
 								onChangeText={text => handleInputChange('name', text)}
 								value={formData.name}
@@ -99,14 +99,14 @@ const OrderScreen = () => {
 							{formErrors.name && <Text style={styles.ErrorText}>{formErrors.name}</Text>}
 
 							<TextInput
-								style={styles.Input}
+								style={[styles.Input, formErrors.email ? styles.ErrorInput : null]}
 								placeholder='Введите email'
 								onChangeText={text => handleInputChange('email', text)}
 								value={formData.email}
 							/>
 							{formErrors.email && <Text style={styles.ErrorText}>{formErrors.email}</Text>}
 							<MaskInput
-								style={styles.Input}
+								style={[styles.Input, formErrors.phone ? styles.ErrorInput : null]}
 								placeholder='Введите телефон'
 								onChangeText={text => handleInputChange('phone', text)}
 								value={formData.phone}
@@ -191,7 +191,11 @@ const styles = StyleSheet.create({
 		height: 40,
 		borderColor: 'gray',
 		borderWidth: 1,
-		paddingHorizontal: 10
+		paddingHorizontal: 10,
+		borderRadius: 10
+	},
+	ErrorInput: {
+		borderColor: 'red'
 	},
 	Button: {
 		marginTop: 20,
@@ -218,7 +222,8 @@ const styles = StyleSheet.create({
 		marginBottom: 0
 	},
 	ErrorText: {
-		marginBottom: 10
+		marginBottom: 10,
+		color: 'red'
 	},
 	ThankText: {
 		fontSize: 22,

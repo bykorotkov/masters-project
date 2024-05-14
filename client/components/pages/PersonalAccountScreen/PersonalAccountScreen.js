@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
@@ -11,6 +12,7 @@ const PersonalAccountScreen = () => {
 	const { authStore } = useContext(Context);
 	const navigation = useNavigation();
 	const [products, setProducts] = useState([]);
+	const [username, setUsername] = useState('');
 
 	const fetchData = async () => {
 		try {
@@ -22,6 +24,12 @@ const PersonalAccountScreen = () => {
 	};
 
 	useEffect(() => {
+		const getUsername = async () => {
+			const userName = await AsyncStorage.getItem('username');
+			setUsername(userName);
+		};
+
+		getUsername();
 		fetchData();
 	}, []);
 
@@ -33,7 +41,7 @@ const PersonalAccountScreen = () => {
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Личный кабинет</Text>
-			<Text style={styles.subtitle}>Добро пожаловать!</Text>
+			<Text style={styles.subtitle}>Добро пожаловать, {username}!</Text>
 
 			<CustomButton
 				title='Выйти'

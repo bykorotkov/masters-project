@@ -54,7 +54,7 @@ class authController {
 
 			const saveToken = new Token({ userId: user._id, token });
 			await saveToken.save();
-			return res.json({ token });
+			return res.json({ token, userId: user._id, username });
 		} catch (e) {
 			console.log(e);
 			res.status(400).json({ message: 'Ошибка логинизации' });

@@ -12,6 +12,7 @@ const BasketScreen = observer(() => {
 	const { basketStore } = useContext(Context);
 	const [isLoading, setIsLoading] = useState(true);
 	const navigation = useNavigation();
+	const [totalPrice, setTotalPrice] = useState(0);
 
 	useEffect(() => {
 		const getItems = async () => {
@@ -22,6 +23,18 @@ const BasketScreen = observer(() => {
 
 		getItems();
 	}, [basketStore]);
+
+	useEffect(() => {
+		const calculateTotalPrice = () => {
+			let total = 0;
+			basketStore.products.forEach(product => {
+				total += product.price * product.quantity;
+			});
+			setTotalPrice(total);
+		};
+
+		calculateTotalPrice();
+	}, [basketStore.products]);
 
 	const removeFromBasketWithToken = async productId => {
 		try {
@@ -69,9 +82,6 @@ const BasketScreen = observer(() => {
 									<Text>
 										<Text style={styles.Span}>Тип:</Text> {product.productDetails.Type}
 									</Text>
-									<Text>
-										<Text style={styles.Span}>Basket ID:</Text> {product.basketId}
-									</Text>
 
 									<Counter
 										productId={product.productId}
@@ -110,7 +120,9 @@ const BasketScreen = observer(() => {
 							style={styles.Button}
 							title='Оформить заказ'
 							onPress={() => navigation.navigate('OrderScreen')}>
-							<Text style={styles.TextButton}>Оформить заказ</Text>
+							<Text style={styles.TextButton}>
+								Оформить заказ <Text style={styles.TotalPrice}>({totalPrice} руб.)</Text>
+							</Text>
 						</TouchableOpacity>
 					) : null}
 				</ScrollView>
@@ -158,8 +170,9 @@ const styles = StyleSheet.create({
 	},
 	DeleteContainer: {
 		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center'
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		paddingTop: 10
 	},
 	Delete: {
 		display: 'flex',
@@ -167,7 +180,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		height: 'auto',
-		marginTop: 15,
+		marginTop: 0,
 		backgroundColor: '#ccc',
 		paddingVertical: 10,
 		borderRadius: 10
@@ -188,6 +201,9 @@ const styles = StyleSheet.create({
 		marginTop: 20
 	},
 	Span: {
+		fontWeight: 'bold'
+	},
+	TotalPrice: {
 		fontWeight: 'bold'
 	}
 });

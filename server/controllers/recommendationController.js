@@ -52,10 +52,18 @@ class recommendationController {
 			const recommendations = await Recommendation.findOne({ userId });
 
 			if (!recommendations) {
-				return res.status(404).json({ message: 'Рекомендации не найдены' });
+				return res.json([]);
 			}
 
-			res.json(recommendations.recommendedProducts);
+			const recommendedProducts = [];
+			for (const item of recommendations.recommendedProducts) {
+				const product = await Product.findById(item.productId);
+				if (product) {
+					recommendedProducts.push(product);
+				}
+			}
+
+			res.json(recommendedProducts);
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: 'Ошибка при получении рекомендаций' });
