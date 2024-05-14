@@ -12,9 +12,9 @@ export default class RecommendationStore {
 		this.recommendations = recommendations;
 	}
 
-	async createRecommendations() {
+	async createRecommendations(userId) {
 		try {
-			const response = await RecommendationService.createRecommendation();
+			const response = await RecommendationService.createRecommendation(userId);
 
 			this.setRecommendations(response.data);
 		} catch (e) {
@@ -22,9 +22,9 @@ export default class RecommendationStore {
 		}
 	}
 
-	async getRecommendations() {
+	async getRecommendations(userId) {
 		try {
-			const response = await RecommendationService.getRecommendation();
+			const response = await RecommendationService.getRecommendation(userId);
 
 			this.setRecommendations(response.data);
 		} catch (e) {

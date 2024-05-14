@@ -13,8 +13,6 @@ class recommendationController {
 
 			const basketItems = await BasketItem.find({ basketId: { $in: basketIds } });
 
-			console.log(baskets);
-
 			const productCountMap = {};
 			basketItems.forEach(item => {
 				const productId = item.productId.toString();
@@ -27,7 +25,7 @@ class recommendationController {
 				}
 			});
 
-			console.log('productCountMap', productCountMap);
+			console.log(productCountMap);
 
 			const popularProducts = Object.keys(productCountMap)
 				.sort((a, b) => productCountMap[b] - productCountMap[a])
@@ -38,9 +36,9 @@ class recommendationController {
 				recommendedProducts: popularProducts.map(productId => ({ productId }))
 			});
 
-			// await recommendations.save();
+			await recommendations.save();
 
-			// res.json(recommendations);
+			res.json(recommendations);
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: 'Ошибка при получении рекомендаций' });
@@ -49,6 +47,15 @@ class recommendationController {
 
 	async getRecommendations(req, res) {
 		try {
+			const { userId } = req.params;
+
+			const recommendations = await Recommendation.findOne({ userId });
+
+			if (!recommendations) {
+				return res.status(404).json({ message: 'Рекомендации не найдены' });
+			}
+
+			res.json(recommendations.recommendedProducts);
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ message: 'Ошибка при получении рекомендаций' });

@@ -4,15 +4,18 @@ import AppNavigator from './Navigation/AppNavigator';
 import AuthStore from './store/AuthStore';
 import BasketStore from './store/BasketStore';
 import OrderStore from './store/OrderStore';
+import RecommendationStore from './store/RecommendationsStore';
 
 const authStore = new AuthStore();
 const basketStore = new BasketStore();
 const orderStore = new OrderStore();
+const recommendationStore = new RecommendationStore();
 
 export const Context = createContext({
 	authStore,
 	basketStore,
-	orderStore
+	orderStore,
+	recommendationStore
 });
 
 const App = () => {
@@ -21,7 +24,8 @@ const App = () => {
 			value={{
 				authStore,
 				basketStore,
-				orderStore
+				orderStore,
+				recommendationStore
 			}}>
 			<NavigationContainer>
 				<AppNavigator />
