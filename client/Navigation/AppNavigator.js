@@ -1,4 +1,5 @@
 import { createStackNavigator } from '@react-navigation/stack';
+import ArchiveOrdersScreen from '../components/pages/ArchiveOrdersScreen/ArchiveOrdersScreen';
 import BasketScreen from '../components/pages/BasketScreen/BasketScreen';
 import HomeScreen from '../components/pages/HomeScreen/HomeScreen';
 import LoginScreen from '../components/pages/LoginScreen/LoginScreen';
@@ -39,6 +40,10 @@ const AppNavigator = () => {
 			<Stack.Screen
 				name='RecommendationScreen'
 				component={RecommendationScreen}
+			/>
+			<Stack.Screen
+				name='ArchiveOrdersScreen'
+				component={ArchiveOrdersScreen}
 			/>
 		</Stack.Navigator>
 	);

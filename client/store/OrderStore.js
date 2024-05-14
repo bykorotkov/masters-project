@@ -25,6 +25,7 @@ export default class OrderStore {
 	async getOrders(token) {
 		try {
 			const response = await OrderService.getOrders(token);
+
 			this.setOrders(response.data);
 		} catch (e) {
 			console.error('Произошла ошибка при получении заказа', e);

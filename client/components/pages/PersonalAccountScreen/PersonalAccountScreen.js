@@ -64,6 +64,13 @@ const PersonalAccountScreen = () => {
 					width={'100%'}
 					onPress={() => navigation.navigate('RecommendationScreen')}
 				/>
+
+				<CustomButton
+					title='Посмотреть заказы'
+					style={styles.basketButton}
+					width={'100%'}
+					onPress={() => navigation.navigate('ArchiveOrdersScreen')}
+				/>
 			</View>
 
 			<Text style={styles.cardTitle}>Выберите категорию товаров, которая вас интересует!</Text>
@@ -100,7 +107,8 @@ const styles = StyleSheet.create({
 	subtitle: {
 		fontSize: 18,
 		color: '#666',
-		marginBottom: 0
+		marginBottom: 0,
+		paddingRight: 100
 	},
 	cardTitle: {
 		fontSize: 18,
@@ -119,7 +127,7 @@ const styles = StyleSheet.create({
 	button: {
 		position: 'absolute',
 		top: 15,
-		right: 20,
+		right: 10,
 		width: 100
 	},
 	WideButtons: {

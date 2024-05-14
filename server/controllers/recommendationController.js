@@ -25,16 +25,25 @@ class recommendationController {
 				}
 			});
 
-			console.log(productCountMap);
-
 			const popularProducts = Object.keys(productCountMap)
 				.sort((a, b) => productCountMap[b] - productCountMap[a])
 				.slice(0, 5); // Получаем топ-5 популярных товаров
 
-			const recommendations = new Recommendation({
-				userId,
-				recommendedProducts: popularProducts.map(productId => ({ productId }))
-			});
+			// const recommendations = new Recommendation({
+			// 	userId,
+			// 	recommendedProducts: popularProducts.map(productId => ({ productId }))
+			// });
+
+			let recommendations = await Recommendation.findOne({ userId });
+
+			if (!recommendations) {
+				recommendations = new Recommendation({
+					userId,
+					recommendedProducts: popularProducts.map(productId => ({ productId }))
+				});
+			} else {
+				recommendations.recommendedProducts = popularProducts.map(productId => ({ productId }));
+			}
 
 			await recommendations.save();
 

@@ -6,7 +6,7 @@ import MaskInput from 'react-native-mask-input';
 import { Context } from '../../../App';
 
 const OrderScreen = () => {
-	const { basketStore, orderStore } = useContext(Context);
+	const { basketStore, orderStore, recommendationStore } = useContext(Context);
 	const [isLoading, setIsLoading] = useState(true);
 	const [formErrors, setFormErrors] = useState({});
 	const [isFormSubmitted, setIsFormSubmitted] = useState(false);
@@ -40,6 +40,11 @@ const OrderScreen = () => {
 		return re.test(email);
 	};
 
+	const validatePhone = phone => {
+		const re = /^\+\d{1}\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}$/;
+		return re.test(phone);
+	};
+
 	const validateForm = () => {
 		const errors = {};
 
@@ -55,6 +60,8 @@ const OrderScreen = () => {
 
 		if (!formData.phone.trim()) {
 			errors.phone = 'Поле "Введите телефон" обязательно для заполнения';
+		} else if (!validatePhone(formData.phone)) {
+			errors.phone = 'Пожалуйста, введите корректный телефонный номер';
 		}
 
 		setFormErrors(errors);
@@ -76,7 +83,10 @@ const OrderScreen = () => {
 	const addOrder = async () => {
 		try {
 			const token = await AsyncStorage.getItem('token');
+			const userId = await AsyncStorage.getItem('userId');
+
 			await orderStore.createOrderFunc(formData.name, formData.email, formData.phone, token);
+			await recommendationStore.createRecommendations(userId);
 		} catch (e) {
 			console.error('Не удалось создать заказ', e.message);
 		}

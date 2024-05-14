@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute } from '@react-navigation/native';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Context } from '../../../App';
 
 const ProductListScreen = observer(() => {
@@ -10,6 +10,7 @@ const ProductListScreen = observer(() => {
 	const { filteredProducts, productType } = route.params;
 	const { basketStore } = useContext(Context);
 	const [isLoading, setIsLoading] = useState(true);
+	const [imageLoading, setImageLoading] = useState(true);
 
 	useEffect(() => {
 		const getItems = async () => {
@@ -47,11 +48,19 @@ const ProductListScreen = observer(() => {
 						<View
 							key={product._id}
 							style={styles.Card}>
-							<View>
+							<View style={styles.ImageContainer}>
 								<Image
 									source={{ uri: product.Image }}
 									style={styles.Image}
+									onLoadEnd={() => setImageLoading(false)}
 								/>
+								{imageLoading && (
+									<ActivityIndicator
+										style={styles.Loader}
+										size='large'
+										color='#0000ff'
+									/>
+								)}
 							</View>
 
 							<View style={styles.Description}>
@@ -170,6 +179,16 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		color: '#fff',
 		paddingVertical: 10
+	},
+	ImageContainer: {
+		position: 'relative'
+	},
+	Loader: {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		marginTop: -15,
+		marginLeft: -15
 	}
 });
 

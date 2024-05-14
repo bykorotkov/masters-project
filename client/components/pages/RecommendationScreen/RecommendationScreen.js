@@ -1,18 +1,21 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { observer } from 'mobx-react-lite';
-import React, { useContext, useEffect } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Context } from '../../../App';
 
 const RecommendationScreen = observer(() => {
 	const { recommendationStore } = useContext(Context);
 	const navigation = useNavigation();
+	const [isLoading, setIsLoading] = useState(true);
+	const [imageLoading, setImageLoading] = useState(true);
 
 	useEffect(() => {
 		const createRecommendation = async () => {
 			const userId = await AsyncStorage.getItem('userId');
 			recommendationStore.getRecommendations(userId);
+			setIsLoading(false);
 		};
 
 		createRecommendation();
@@ -22,51 +25,73 @@ const RecommendationScreen = observer(() => {
 		<View style={styles.Container}>
 			<Text style={styles.Title}>Страница рекомендаций</Text>
 			<Text style={styles.Text}>Ваши личные тренды покупок за всё время:</Text>
-			{recommendationStore.recommendations && recommendationStore.recommendations.length ? (
-				<ScrollView style={styles.Outer}>
-					<View style={styles.CardContainer}>
-						{recommendationStore.recommendations.map((recommendation, index) => (
-							<View
-								key={index}
-								style={styles.Card}>
-								<Image
-									source={{ uri: recommendation.Image }}
-									style={styles.Image}
-								/>
-
-								<View style={styles.Description}>
-									<Text style={styles.Name}>
-										<Text style={styles.BoldText}>Название:</Text> {recommendation.Name}
-									</Text>
-									<Text style={styles.Rate}>
-										<Text style={styles.BoldText}>Рейтинг:</Text> {recommendation.Rate}
-									</Text>
-									<View style={styles.Row}>
-										<Text style={styles.Volume}>
-											<Text style={styles.BoldText}>Объем:</Text> {recommendation.Volume}
-										</Text>
-										<Text style={styles.Price}>
-											<Text style={styles.BoldText}>Цена:</Text> {recommendation.Price}
-										</Text>
-									</View>
-								</View>
-							</View>
-						))}
-					</View>
-				</ScrollView>
+			{isLoading ? (
+				<>
+					<Text>Данные загружаются...</Text>
+					<ActivityIndicator
+						size='large'
+						color='#0000ff'
+					/>
+				</>
 			) : (
-				<View style={styles.CaptionContainer}>
-					<Text style={styles.Caption}>
-						Данных пока что недостаточно. Совершите покупку, чтобы сформировать персональную рекомендацию!
-					</Text>
+				<>
+					{recommendationStore.recommendations && recommendationStore.recommendations.length ? (
+						<ScrollView style={styles.Outer}>
+							<View style={styles.CardContainer}>
+								{recommendationStore.recommendations.map((recommendation, index) => (
+									<View
+										key={index}
+										style={styles.Card}>
+										<View style={styles.ImageContainer}>
+											<Image
+												source={{ uri: recommendation.Image }}
+												style={styles.Image}
+												onLoadEnd={() => setImageLoading(false)}
+											/>
+											{imageLoading && (
+												<ActivityIndicator
+													style={styles.Loader}
+													size='large'
+													color='#0000ff'
+												/>
+											)}
+										</View>
 
-					<TouchableOpacity
-						style={styles.Button}
-						title='Перейти к выбору товаров'
-						onPress={() => navigation.navigate('PersonalAccountScreen')}>
-						<Text style={styles.TextButton}>Перейти к выбору товаров</Text>
-					</TouchableOpacity>
-				</View>
+										<View style={styles.Description}>
+											<Text style={styles.Name}>
+												<Text style={styles.BoldText}>Название:</Text> {recommendation.Name}
+											</Text>
+											<Text style={styles.Rate}>
+												<Text style={styles.BoldText}>Рейтинг:</Text> {recommendation.Rate}
+											</Text>
+											<View style={styles.Row}>
+												<Text style={styles.Volume}>
+													<Text style={styles.BoldText}>Объем:</Text> {recommendation.Volume}
+												</Text>
+												<Text style={styles.Price}>
+													<Text style={styles.BoldText}>Цена:</Text> {recommendation.Price}
+												</Text>
+											</View>
+										</View>
+									</View>
+								))}
+							</View>
+						</ScrollView>
+					) : (
+						<View style={styles.CaptionContainer}>
+							<Text style={styles.Caption}>
+								Данных пока что недостаточно. Совершите покупку, чтобы сформировать персональную рекомендацию!
+							</Text>
+
+							<TouchableOpacity
+								style={styles.Button}
+								title='Перейти к выбору товаров'
+								onPress={() => navigation.navigate('PersonalAccountScreen')}>
+								<Text style={styles.TextButton}>Перейти к выбору товаров</Text>
+							</TouchableOpacity>
+						</View>
+					)}
+				</>
 			)}
 		</View>
 	);
@@ -120,7 +145,7 @@ const styles = StyleSheet.create({
 		width: '100%',
 		height: 120,
 		backgroundColor: '#fff',
-		objectFit: 'cover',
+		objectFit: 'contain',
 		borderTopLeftRadius: 10,
 		borderTopRightRadius: 10,
 		borderBottomLeftRadius: 0,
@@ -146,6 +171,16 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		color: '#fff',
 		paddingVertical: 20
+	},
+	ImageContainer: {
+		position: 'relative'
+	},
+	Loader: {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		marginTop: -15,
+		marginLeft: -15
 	}
 });
 
