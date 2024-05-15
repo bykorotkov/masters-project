@@ -1,8 +1,8 @@
 import $base from '../http/api';
 
 export default class OrderService {
-	static async createOrder(name, email, phone, token) {
-		return $base.post('/orders', { name, email, phone, token });
+	static async createOrder(name, email, phone, address, token) {
+		return $base.post('/orders', { name, email, phone, address, token });
 	}
 
 	static async getOrders(token) {

@@ -29,11 +29,6 @@ class recommendationController {
 				.sort((a, b) => productCountMap[b] - productCountMap[a])
 				.slice(0, 5); // Получаем топ-5 популярных товаров
 
-			// const recommendations = new Recommendation({
-			// 	userId,
-			// 	recommendedProducts: popularProducts.map(productId => ({ productId }))
-			// });
-
 			let recommendations = await Recommendation.findOne({ userId });
 
 			if (!recommendations) {

@@ -46,16 +46,16 @@ const ArchiveOrdersScreen = () => {
 			) : (
 				<ScrollView>
 					{orderStore.orders && orderStore.orders.length
-						? orderStore.orders.map(order => (
+						? orderStore.orders.map((order, index) => (
 								<View
-									key={order._id}
+									key={index}
 									style={styles.OrderInfo}>
 									<View style={styles.ImageContainer}>
-										{order.products.map(product => (
+										{order.products.map((product, i) => (
 											<>
 												{product.image && (
 													<Image
-														key={product._id}
+														key={i}
 														source={{ uri: product.image }}
 														style={styles.Image}
 														onLoadEnd={() => setImageLoading(false)}
@@ -86,9 +86,9 @@ const ArchiveOrdersScreen = () => {
 
 									<Text style={styles.ProductDetails}>Товары в заказе</Text>
 
-									{order.products.map(product => (
+									{order.products.map((product, i) => (
 										<View
-											key={product._id}
+											key={i}
 											style={styles.ProductInfo}>
 											<Text>
 												<Text style={styles.Span}>Наименование:</Text> {product.name}
@@ -162,7 +162,10 @@ const styles = StyleSheet.create({
 		padding: 10
 	},
 	ProductInfo: {
-		marginBottom: 10
+		marginBottom: 10,
+		borderWidth: 1,
+		padding: 10,
+		borderRadius: 10
 	}
 });
 

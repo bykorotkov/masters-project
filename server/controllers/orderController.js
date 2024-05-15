@@ -6,7 +6,7 @@ const User = require('../models/User');
 
 const createOrder = async (req, res) => {
 	try {
-		const { name, email, phone, token } = req.body;
+		const { name, email, phone, address, token } = req.body;
 
 		const tokenData = await Token.findOne({ token });
 
@@ -28,6 +28,7 @@ const createOrder = async (req, res) => {
 			name,
 			email,
 			phone,
+			address,
 			userId: tokenData.userId
 		});
 

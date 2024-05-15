@@ -12,9 +12,9 @@ export default class OrderStore {
 		this.orders = orders;
 	}
 
-	async createOrderFunc(name, email, phone, token) {
+	async createOrderFunc(name, email, phone, address, token) {
 		try {
-			const response = await OrderService.createOrder(name, email, phone, token);
+			const response = await OrderService.createOrder(name, email, phone, address, token);
 
 			this.setOrders(response.data);
 		} catch (e) {

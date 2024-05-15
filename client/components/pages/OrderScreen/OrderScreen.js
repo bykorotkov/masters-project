@@ -25,7 +25,8 @@ const OrderScreen = () => {
 	const [formData, setFormData] = useState({
 		name: '',
 		email: '',
-		phone: ''
+		phone: '',
+		address: ''
 	});
 
 	const handleInputChange = (name, value) => {
@@ -64,6 +65,10 @@ const OrderScreen = () => {
 			errors.phone = 'Пожалуйста, введите корректный телефонный номер';
 		}
 
+		if (!formData.address.trim()) {
+			errors.address = 'Поле "Введите адрес" обязательно для заполнения';
+		}
+
 		setFormErrors(errors);
 
 		return Object.keys(errors).length === 0;
@@ -85,7 +90,7 @@ const OrderScreen = () => {
 			const token = await AsyncStorage.getItem('token');
 			const userId = await AsyncStorage.getItem('userId');
 
-			await orderStore.createOrderFunc(formData.name, formData.email, formData.phone, token);
+			await orderStore.createOrderFunc(formData.name, formData.email, formData.phone, formData.address, token);
 			await recommendationStore.createRecommendations(userId);
 		} catch (e) {
 			console.error('Не удалось создать заказ', e.message);
@@ -123,6 +128,13 @@ const OrderScreen = () => {
 								mask={['+', '7', ' ', '(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/]}
 							/>
 							{formErrors.phone && <Text style={styles.ErrorText}>{formErrors.phone}</Text>}
+							<TextInput
+								style={[styles.Input, formErrors.address ? styles.ErrorInput : null]}
+								placeholder='Введите адрес'
+								onChangeText={text => handleInputChange('address', text)}
+								value={formData.address}
+							/>
+							{formErrors.address && <Text style={styles.ErrorText}>{formErrors.address}</Text>}
 						</View>
 
 						{isLoading ? (
