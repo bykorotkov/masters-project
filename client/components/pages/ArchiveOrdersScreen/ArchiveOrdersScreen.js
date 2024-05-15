@@ -52,10 +52,9 @@ const ArchiveOrdersScreen = () => {
 									style={styles.OrderInfo}>
 									<View style={styles.ImageContainer}>
 										{order.products.map((product, i) => (
-											<>
+											<View key={i}>
 												{product.image && (
 													<Image
-														key={i}
 														source={{ uri: product.image }}
 														style={styles.Image}
 														onLoadEnd={() => setImageLoading(false)}
@@ -68,7 +67,7 @@ const ArchiveOrdersScreen = () => {
 														color='#0000ff'
 													/>
 												)}
-											</>
+											</View>
 										))}
 									</View>
 									<Text>
