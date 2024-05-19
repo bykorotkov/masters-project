@@ -22,6 +22,16 @@ export default class BasketStore {
 		}
 	}
 
+	async addPackageToBasket(products, token) {
+		try {
+			const response = await BasketService.addPackageToBasket(products, token);
+
+			this.setProduct(response.data.products);
+		} catch (error) {
+			console.error('Произошла ошибка при добавлении набора товаров в корзину:', error);
+		}
+	}
+
 	async deleteFromBasket(productId, token) {
 		try {
 			const response = await BasketService.deleteFromBasket(productId, token);

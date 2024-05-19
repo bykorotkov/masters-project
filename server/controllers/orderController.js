@@ -63,7 +63,7 @@ const getOrders = async (req, res) => {
 		const orders = await Order.find({ userId });
 
 		if (orders.length === 0) {
-			return res.status(400).json({ message: 'У пользователя нет заказов' });
+			return res.status(200).json([]);
 		}
 
 		const ordersWithProducts = await Promise.all(

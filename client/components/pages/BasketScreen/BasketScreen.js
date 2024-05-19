@@ -77,6 +77,9 @@ const BasketScreen = observer(() => {
 										<Text style={styles.Span}>Рейтинг:</Text> {product.productDetails.Rate}
 									</Text>
 									<Text>
+										<Text style={styles.Span}>Объем:</Text> {product.productDetails.Volume}
+									</Text>
+									<Text>
 										<Text style={styles.Span}>Краткое описание:</Text> {product.productDetails.Brief}
 									</Text>
 									<Text>

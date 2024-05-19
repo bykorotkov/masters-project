@@ -56,6 +56,55 @@ class basketController {
 		}
 	}
 
+	async addPackageToBasket(req, res) {
+		try {
+			const { products, token } = req.body;
+
+			const tokenData = await Token.findOne({ token });
+
+			if (!tokenData) {
+				return res.status(400).json({ message: 'Пользователь не найден' });
+			}
+
+			if (!products || !Array.isArray(products) || products.length === 0) {
+				return res.status(400).json({ message: 'Неверный формат списка товаров' });
+			}
+
+			let basket = await Basket.findOne({ userId: tokenData.userId, orderId: null });
+			if (!basket) {
+				basket = new Basket({ userId: tokenData.userId, orderId: tokenData._id });
+				await basket.save();
+			}
+
+			// const productIds = products.map(product => product._id);
+			// const existingProducts = await BasketItem.find({ productId: { $in: productIds } });
+
+			for (const product of products) {
+				const { _id } = product;
+				// const selectedProduct = existingProducts.find(p => p.productId === _id);
+				const existingProduct = await BasketItem.findOne({ productId: _id, basketId: basket._id });
+
+				if (!existingProduct) {
+					const productInfo = await Product.findOne({ _id });
+
+					const price = parseFloat(productInfo.Price.replace(' рублей', ''));
+					if (isNaN(price)) {
+						return res.status(400).json({ message: 'Некорректное значение цены товара' });
+					}
+
+					const newProduct = new BasketItem({ productId: _id, quantity: 1, basketId: basket._id, price });
+					await newProduct.save();
+				}
+			}
+
+			const basketItems = await BasketItem.find({ basketId: basket._id });
+			res.status(200).json({ products: basketItems, message: 'Товары успешно добавлены в корзину' });
+		} catch (e) {
+			console.log(e);
+			res.status(400).json({ message: 'Ошибка при добавлении товаров в корзину' });
+		}
+	}
+
 	async deleteFromBasket(req, res) {
 		try {
 			const token = req.headers.authorization.replace('Bearer ', '');

@@ -28,7 +28,7 @@ const ProductListScreen = observer(() => {
 			if (!(await basketStore.isProductInBasket(productId))) {
 				await basketStore.addToBasket(productId, 1, token);
 			} else {
-				console.log('Товар уже добавлен в корзину');
+				basketStore.deleteFromBasket(productId, token);
 			}
 		} catch (error) {
 			console.error('Произошла ошибка при получении токена из AsyncStorage:', error);
@@ -76,7 +76,7 @@ const ProductListScreen = observer(() => {
 										style={styles.ButtonActive}
 										title='Добавить в корзину'
 										onPress={() => addToBasketWithToken(product._id)}>
-										<Text style={styles.TextButton}>Товар добавлен</Text>
+										<Text style={styles.TextButton}>Удалить из корзины</Text>
 									</TouchableOpacity>
 								) : (
 									<TouchableOpacity

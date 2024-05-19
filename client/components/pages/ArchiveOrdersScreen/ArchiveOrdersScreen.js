@@ -1,12 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Context } from '../../../App';
 
 const ArchiveOrdersScreen = () => {
 	const { orderStore } = useContext(Context);
 	const [isLoading, setIsLoading] = useState(true);
 	const [imageLoading, setImageLoading] = useState(true);
+	const navigation = useNavigation();
 
 	useEffect(() => {
 		const getOrders = async () => {
@@ -45,67 +47,78 @@ const ArchiveOrdersScreen = () => {
 				</>
 			) : (
 				<ScrollView>
-					{orderStore.orders && orderStore.orders.length
-						? orderStore.orders.map((order, index) => (
-								<View
-									key={index}
-									style={styles.OrderInfo}>
-									<View style={styles.ImageContainer}>
-										{order.products.map((product, i) => (
-											<View key={i}>
-												{product.image && (
-													<Image
-														source={{ uri: product.image }}
-														style={styles.Image}
-														onLoadEnd={() => setImageLoading(false)}
-													/>
-												)}
-												{imageLoading && (
-													<ActivityIndicator
-														style={styles.Loader}
-														size='large'
-														color='#0000ff'
-													/>
-												)}
-											</View>
-										))}
-									</View>
-									<Text>
-										<Text style={styles.Span}>Имя:</Text> {order.name}
-									</Text>
-									<Text>
-										<Text style={styles.Span}>Email:</Text> {order.email}
-									</Text>
-									<Text>
-										<Text style={styles.Span}>Телефон:</Text> {order.phone}
-									</Text>
-									<Text>
-										<Text style={styles.Span}>Дата создания:</Text> {formatCreatedAtDate(order.createdAt)}
-									</Text>
-
-									<Text style={styles.ProductDetails}>Товары в заказе</Text>
-
+					{orderStore.orders && orderStore.orders.length ? (
+						orderStore.orders.map((order, index) => (
+							<View
+								key={index}
+								style={styles.OrderInfo}>
+								<View style={styles.ImageContainer}>
 									{order.products.map((product, i) => (
-										<View
-											key={i}
-											style={styles.ProductInfo}>
-											<Text>
-												<Text style={styles.Span}>Наименование:</Text> {product.name}
-											</Text>
-											<Text>
-												<Text style={styles.Span}>Объем:</Text> {product.volume}
-											</Text>
-											<Text>
-												<Text style={styles.Span}>Цена:</Text> {product.price} рублей
-											</Text>
-											<Text>
-												<Text style={styles.Span}>Количество:</Text> {product.quantity}
-											</Text>
+										<View key={i}>
+											{product.image && (
+												<Image
+													source={{ uri: product.image }}
+													style={styles.Image}
+													onLoadEnd={() => setImageLoading(false)}
+												/>
+											)}
+											{imageLoading && (
+												<ActivityIndicator
+													style={styles.Loader}
+													size='large'
+													color='#0000ff'
+												/>
+											)}
 										</View>
 									))}
 								</View>
-						  ))
-						: null}
+								<Text>
+									<Text style={styles.Span}>Имя:</Text> {order.name}
+								</Text>
+								<Text>
+									<Text style={styles.Span}>Email:</Text> {order.email}
+								</Text>
+								<Text>
+									<Text style={styles.Span}>Телефон:</Text> {order.phone}
+								</Text>
+								<Text>
+									<Text style={styles.Span}>Дата создания:</Text> {formatCreatedAtDate(order.createdAt)}
+								</Text>
+
+								<Text style={styles.ProductDetails}>Товары в заказе</Text>
+
+								{order.products.map((product, i) => (
+									<View
+										key={i}
+										style={styles.ProductInfo}>
+										<Text>
+											<Text style={styles.Span}>Наименование:</Text> {product.name}
+										</Text>
+										<Text>
+											<Text style={styles.Span}>Объем:</Text> {product.volume}
+										</Text>
+										<Text>
+											<Text style={styles.Span}>Цена:</Text> {product.price} рублей
+										</Text>
+										<Text>
+											<Text style={styles.Span}>Количество:</Text> {product.quantity}
+										</Text>
+									</View>
+								))}
+							</View>
+						))
+					) : (
+						<View style={styles.CaptionContainer}>
+							<Text style={styles.Caption}>Нет существующих заказов. Но вы можете это исправить!</Text>
+
+							<TouchableOpacity
+								style={styles.Button}
+								title='Перейти к выбору товаров'
+								onPress={() => navigation.navigate('PersonalAccountScreen')}>
+								<Text style={styles.TextButton}>Перейти к выбору товаров</Text>
+							</TouchableOpacity>
+						</View>
+					)}
 				</ScrollView>
 			)}
 		</View>
@@ -152,7 +165,9 @@ const styles = StyleSheet.create({
 		height: 100,
 		borderRadius: 10,
 		marginRight: 13,
-		marginBottom: 10
+		marginBottom: 10,
+		objectFit: 'contain',
+		backgroundColor: '#fff'
 	},
 	ProductDetails: {
 		textAlign: 'center',
@@ -165,6 +180,27 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		padding: 10,
 		borderRadius: 10
+	},
+	CaptionContainer: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		height: '100%'
+	},
+	Caption: {
+		fontSize: 24,
+		textAlign: 'center'
+	},
+	Button: {
+		marginTop: 20,
+		backgroundColor: '#1976D2',
+		borderRadius: 10,
+		width: '100%'
+	},
+	TextButton: {
+		textAlign: 'center',
+		color: '#fff',
+		paddingVertical: 20
 	}
 });
 

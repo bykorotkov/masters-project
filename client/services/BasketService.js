@@ -5,6 +5,10 @@ export default class BasketService {
 		return $base.post('/', { productId, quantity, token });
 	}
 
+	static async addPackageToBasket(products, token) {
+		return $base.post('/package', { products, token });
+	}
+
 	static async deleteFromBasket(productId, token) {
 		return $base.delete(
 			'/',

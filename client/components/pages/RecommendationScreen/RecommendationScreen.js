@@ -6,10 +6,12 @@ import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacit
 import { Context } from '../../../App';
 
 const RecommendationScreen = observer(() => {
-	const { recommendationStore } = useContext(Context);
+	const { recommendationStore, basketStore } = useContext(Context);
 	const navigation = useNavigation();
 	const [isLoading, setIsLoading] = useState(true);
 	const [imageLoading, setImageLoading] = useState(true);
+	const [areAllProductsAdded, setAreAllProductsAdded] = useState(false);
+	const [totalPrice, setTotalPrice] = useState(0);
 
 	useEffect(() => {
 		const createRecommendation = async () => {
@@ -20,6 +22,77 @@ const RecommendationScreen = observer(() => {
 
 		createRecommendation();
 	}, []);
+
+	useEffect(() => {
+		const getItems = async () => {
+			const token = await AsyncStorage.getItem('token');
+			await basketStore.getBasket(token);
+			setIsLoading(false);
+		};
+
+		getItems();
+	}, [basketStore]);
+
+	const addToBasketWithToken = async productId => {
+		try {
+			const token = await AsyncStorage.getItem('token');
+			if (!(await basketStore.isProductInBasket(productId))) {
+				await basketStore.addToBasket(productId, 1, token);
+			} else {
+				basketStore.deleteFromBasket(productId, token);
+			}
+		} catch (error) {
+			console.error('Произошла ошибка при получении токена из AsyncStorage:', error);
+		}
+	};
+
+	const addPackage = async products => {
+		try {
+			const token = await AsyncStorage.getItem('token');
+			const allProductsAdded = await isAllProductsAdded();
+			setAreAllProductsAdded(allProductsAdded);
+
+			if (!allProductsAdded) {
+				await basketStore.addPackageToBasket(products, token);
+				setAreAllProductsAdded(true);
+			} else {
+				alert('Товары уже в корзине');
+			}
+		} catch (error) {
+			console.error('Произошла ошибка при добавлении набора:', error);
+		}
+	};
+
+	const isAllProductsAdded = async () => {
+		const allProductsAdded = await Promise.all(
+			recommendationStore.recommendations.map(async recommendation => {
+				return await basketStore.isProductInBasket(recommendation._id);
+			})
+		);
+
+		return allProductsAdded.every(added => added);
+	};
+
+	useEffect(() => {
+		const checkAllProductsAdded = async () => {
+			const allProductsAdded = await isAllProductsAdded();
+			setAreAllProductsAdded(allProductsAdded);
+		};
+
+		checkAllProductsAdded();
+	}, [addToBasketWithToken, addPackage]);
+
+	useEffect(() => {
+		const calculateTotalPrice = () => {
+			let total = 0;
+			basketStore.products.forEach(product => {
+				total += product.price * product.quantity;
+			});
+			setTotalPrice(total);
+		};
+
+		calculateTotalPrice();
+	}, [basketStore.products]);
 
 	return (
 		<View style={styles.Container}>
@@ -38,44 +111,81 @@ const RecommendationScreen = observer(() => {
 					{recommendationStore.recommendations && recommendationStore.recommendations.length ? (
 						<ScrollView style={styles.Outer}>
 							<View style={styles.CardContainer}>
-								{recommendationStore.recommendations.map((recommendation, index) => (
-									<View
-										key={index}
-										style={styles.Card}>
-										<View style={styles.ImageContainer}>
-											<Image
-												source={{ uri: recommendation.Image }}
-												style={styles.Image}
-												onLoadEnd={() => setImageLoading(false)}
-											/>
-											{imageLoading && (
-												<ActivityIndicator
-													style={styles.Loader}
-													size='large'
-													color='#0000ff'
-												/>
-											)}
-										</View>
+								{recommendationStore.recommendations.map((recommendation, index) => {
+									const isProductInBasket = basketStore.isProductInBasket(recommendation._id);
 
-										<View style={styles.Description}>
-											<Text style={styles.Name}>
-												<Text style={styles.BoldText}>Название:</Text> {recommendation.Name}
-											</Text>
-											<Text style={styles.Rate}>
-												<Text style={styles.BoldText}>Рейтинг:</Text> {recommendation.Rate}
-											</Text>
-											<View style={styles.Row}>
-												<Text style={styles.Volume}>
-													<Text style={styles.BoldText}>Объем:</Text> {recommendation.Volume}
-												</Text>
-												<Text style={styles.Price}>
-													<Text style={styles.BoldText}>Цена:</Text> {recommendation.Price}
-												</Text>
+									return (
+										<View
+											key={index}
+											style={styles.Card}>
+											<View style={styles.ImageContainer}>
+												<Image
+													source={{ uri: recommendation.Image }}
+													style={styles.Image}
+													onLoadEnd={() => setImageLoading(false)}
+												/>
+												{imageLoading && (
+													<ActivityIndicator
+														style={styles.Loader}
+														size='large'
+														color='#0000ff'
+													/>
+												)}
+											</View>
+
+											<View style={styles.Description}>
+												<View style={styles.TopDesc}>
+													<Text style={styles.Name}>
+														<Text style={styles.BoldText}>Название:</Text> {recommendation.Name}
+													</Text>
+													<Text style={styles.Rate}>
+														<Text style={styles.BoldText}>Рейтинг:</Text> {recommendation.Rate}
+													</Text>
+													<Text style={styles.Volume}>
+														<Text style={styles.BoldText}>Объем:</Text> {recommendation.Volume}
+													</Text>
+													<Text style={styles.Price}>
+														<Text style={styles.BoldText}>Цена:</Text> {recommendation.Price}
+													</Text>
+												</View>
+												<View style={styles.BotDesc}>
+													{isProductInBasket._j ? (
+														<TouchableOpacity
+															style={styles.ButtonActive}
+															title='Добавить в корзину'
+															onPress={() => addToBasketWithToken(recommendation._id)}>
+															<Text style={styles.TextButton}>Удалить из корзины</Text>
+														</TouchableOpacity>
+													) : (
+														<TouchableOpacity
+															style={styles.Button}
+															title='Добавить в корзину'
+															onPress={() => addToBasketWithToken(recommendation._id)}>
+															<Text style={styles.TextButton}>Добавить в корзину</Text>
+														</TouchableOpacity>
+													)}
+												</View>
 											</View>
 										</View>
-									</View>
-								))}
+									);
+								})}
 							</View>
+
+							{!areAllProductsAdded ? (
+								<TouchableOpacity
+									style={styles.ButtonBig}
+									title='Добавить в корзину'
+									onPress={() => addPackage(recommendationStore.recommendations)}>
+									<Text style={styles.TextButton}>Добавить в корзину набор (Сейчас: {totalPrice}р.)</Text>
+								</TouchableOpacity>
+							) : (
+								<TouchableOpacity
+									style={styles.ButtonActiveBig}
+									title='Все товары уже в корзине'
+									onPress={() => addPackage(recommendationStore.recommendations)}>
+									<Text style={styles.TextButton}>Все товары уже в корзине (Сейчас: {totalPrice}р.)</Text>
+								</TouchableOpacity>
+							)}
 						</ScrollView>
 					) : (
 						<View style={styles.CaptionContainer}>
@@ -84,7 +194,7 @@ const RecommendationScreen = observer(() => {
 							</Text>
 
 							<TouchableOpacity
-								style={styles.Button}
+								style={styles.ButtonBig}
 								title='Перейти к выбору товаров'
 								onPress={() => navigation.navigate('PersonalAccountScreen')}>
 								<Text style={styles.TextButton}>Перейти к выбору товаров</Text>
@@ -101,11 +211,11 @@ RecommendationScreen.name = 'RecommendationScreen';
 
 const styles = StyleSheet.create({
 	Container: {
-		flex: 1,
 		paddingHorizontal: 16,
 		paddingVertical: 10,
-
-		backgroundColor: '#fff'
+		backgroundColor: '#fff',
+		paddingBottom: 100,
+		minHeight: '100%'
 	},
 	Title: {
 		textAlign: 'center',
@@ -130,10 +240,15 @@ const styles = StyleSheet.create({
 		marginBottom: 20,
 		borderRadius: '10px 10px 0 0',
 		marginRight: 18,
-		width: '45%'
+		width: '45%',
+		paddingVertical: 5,
+		justifyContent: 'space-between'
 	},
 	Description: {
-		padding: 10
+		padding: 10,
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'stretch'
 	},
 	Name: {
 		width: '100%'
@@ -167,10 +282,29 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		width: '100%'
 	},
+	ButtonActive: {
+		marginTop: 20,
+		backgroundColor: '#ccc',
+		borderRadius: 10
+	},
+	ButtonBig: {
+		marginTop: 10,
+		backgroundColor: '#1976D2',
+		borderRadius: 10,
+		width: '100%',
+		paddingVertical: 10
+	},
+	ButtonActiveBig: {
+		marginTop: 10,
+		backgroundColor: '#ccc',
+		borderRadius: 10,
+		paddingVertical: 10
+	},
 	TextButton: {
 		textAlign: 'center',
 		color: '#fff',
-		paddingVertical: 20
+		paddingVertical: 5,
+		paddingHorizontal: 10
 	},
 	ImageContainer: {
 		position: 'relative'
